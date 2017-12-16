@@ -187,14 +187,11 @@ runScoringNormalization <- function(path, dataset){
 		min = min(data)
 		max = max(data[is.finite(t(data)),])
 		size = nrow(data)
-		print(paste(filein, fileout, algorithm, min, max, k, size))
 		system(paste("java -jar /home/henrique/ireos_extension/JavaCodes/scoring_normalization.jar ", filein, fileout, algorithm, min, max, k, size))
 	}
 }
 
 runPickDatasets <- function(pathin, pathout, dataset){
-	bylabel  = read.table(paste(pathin, "/results/", dataset, "/data", sep = "" ))
-
 	dir.create(paste(pathout, "/data/", sep = ""))
 	data = read.arff(paste(pathin, "/data_arff/", dataset ,".arff", sep=""))
 	data = data[,-which(colnames(data) == "id" |  colnames(data) == "outlier")]
@@ -230,10 +227,11 @@ computed = sub('\\.pdf$', '', computed)
 computed = unique(computed)
 
 for(i in datasets){
-	if(!(i %in% computed))
+	if(!(i %in% computed)){
 		runSummarizeByDataset(path, i, 2)
+	}
 	runPickDatasets(path, "/home/henrique/ireos_extension/Datasets/Real", runBestDatasetsBy(path, i, 18, 5))
-} 
+}
 
 
 

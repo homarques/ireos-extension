@@ -137,7 +137,7 @@ public class main {
 
 		OutlierScalingFunction dist;
 		if (algorithm.equals("LoOP") || algorithm.equals("KDEOS")) {
-			dist = new OutlierLinearScaling(0.0, 1.0, true, true);
+			dist = new OutlierLinearScaling(0.0, 1.0, true, false);
 		} else {
 			dist = new StandardDeviationScaling();
 		}
