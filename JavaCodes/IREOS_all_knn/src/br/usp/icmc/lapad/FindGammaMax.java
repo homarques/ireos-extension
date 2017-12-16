@@ -27,8 +27,6 @@ public class FindGammaMax {
 
 		System.out.println(dataset);
 		if (!comp.contains(dataset)) {
-			List<int[]> ireosSolutions = new ArrayList<>();
-
 			/* List all the solutions in the folder */
 			File[] solutions = (new File(LABELS + args[0])).listFiles();
 			/* Count the number of observations in the dataset */
@@ -39,32 +37,30 @@ public class FindGammaMax {
 			}
 
 			/* Read all the solutions from the files and add in the list of vector */
+			List<Integer> outliers = new ArrayList<Integer>();
 			int outlierID = 0;
 			for (int i = 0; i < solutions.length; i++) {
 				String line = null;
 				reader = new BufferedReader(new FileReader(solutions[i]));
-				int detection[] = new int[datasetSize];
 				outlierID = 0;
 				while ((line = reader.readLine()) != null) {
 					if (Double.parseDouble(line) >= 0.5) {
-						detection[outlierID] = 1;
-					} else {
-						detection[outlierID] = -1;
+						if (!outliers.contains(outlierID))
+							outliers.add(outlierID);
 					}
 					outlierID++;
 				}
-				ireosSolutions.add(detection);
+				reader.close();
 			}
-			reader.close();
 
 			/* Create dataset model */
 			SVMExamples data = new SVMExamples(new BufferedReader(new FileReader(dataset)), datasetSize, 100);
 
 			/* Initialize IREOS using the dataset and the solutions to be evaluated */
-			IREOS ireos = new IREOS(data, ireosSolutions);
+			IREOS ireos = new IREOS(data);
 
 			/* Find the gamma maximum */
-			ireos.findGammaMax();
+			ireos.findGammaMax(outliers);
 
 			FileWriter writer = new FileWriter(GAMMA + args[0]);
 			BufferedWriter bufferedWriter = new BufferedWriter(writer);

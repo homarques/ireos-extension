@@ -3,13 +3,7 @@ package br.usp.icmc.lapad.ireos;
 import java.io.BufferedWriter;
 import java.io.FileWriter;
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
-import java.util.Stack;
-import java.util.TreeMap;
-
-import org.apache.commons.math3.ml.distance.EuclideanDistance;
 
 import com.rapidminer.operator.learner.functions.kernel.jmysvm.examples.SVMExamples;
 import com.rapidminer.parameter.value.ParameterValueGrid;
@@ -28,61 +22,48 @@ public class IREOS {
 	private double[] gammas;
 	/* Dataset */
 	private SVMExamples dataset;
-
-	private IREOSkNN distances[];
-
 	private int strategy;
 
 	/*
 	 * List of solutions to be evaluated, only the labels: 1 (outlier) and -1
 	 * (inlier)
 	 */
-	private List<int[]> rankings = new ArrayList<int[]>();
-	private List<int[]> solutions = new ArrayList<int[]>();
-	private List<float[]> weights = new ArrayList<float[]>();
+	private int[] solution;
+	private float[] weights;
 
 	/* Number of threads to be used */
-	private int number_of_threads = 1; // Runtime.getRuntime().availableProcessors()
+	private int number_of_threads = 10; // Runtime.getRuntime().availableProcessors()
 
 	/** Constructor receive the dataset and list of solutions to be evaluated */
-	public IREOS(SVMExamples dataset, List<int[]> solutions, List<float[]> weights, List<int[]> rankings,
-			int strategy) {
+	public IREOS(SVMExamples dataset, int[] solution, float[] weights, int strategy) {
 		this.dataset = dataset;
-		this.rankings = rankings;
-		this.solutions = solutions;
+		this.solution = solution;
 		this.weights = weights;
 		this.strategy = strategy;
 	}
 
-	public IREOS(SVMExamples dataset, List<int[]> solutions) {
+	public IREOS(SVMExamples dataset) {
 		this.dataset = dataset;
-		this.solutions = solutions;
 	}
 
-	public List<IREOSSolution> evaluateSolutions() {
+	public List<IREOSSolution> evaluateSolutions() throws InterruptedException {
 		List<IREOSSolution> evaluatedSolutions = new ArrayList<IREOSSolution>();
-		/* Evaluating each solution */
-		int l = 0;
-		for (int[] solution : solutions) {
-			/* Getting outlier indexes */
-			List<Integer> outliers = new ArrayList<Integer>();
-			for (int i = 0; i < solution.length; i++) {
-				if (solution[i] > 0)
-					outliers.add(i);
-			}
-			/* Setting cost weights to outliers */
-			SVMExamples data = new SVMExamples(dataset);
-
-			/* Evaluate solution & add to the list */
-			IREOSSolution evaluatedSolution = new IREOSSolution(evaluateSolution(data, outliers, rankings.get(l)), n,
-					weights.get(l), strategy);
-			evaluatedSolutions.add(evaluatedSolution);
-			l++;
+		/* Getting outlier indexes */
+		List<Integer> outliers = new ArrayList<Integer>();
+		for (int i = 0; i < solution.length; i++) {
+			if (solution[i] > 0)
+				outliers.add(i);
 		}
+		/* Setting cost weights to outliers */
+		SVMExamples data = new SVMExamples(dataset);
+
+		/* Evaluate solution & add to the list */
+		IREOSSolution evaluatedSolution = new IREOSSolution(evaluateSolution(data, outliers, weights), n, weights,
+				strategy);
+		evaluatedSolutions.add(evaluatedSolution);
+
 		return evaluatedSolutions;
 	}
-	
-
 
 	/**
 	 * Evaluate a single solution
@@ -92,37 +73,41 @@ public class IREOS {
 	 * 
 	 * @param outliers
 	 *            List of outliers indexes in the dataset
+	 * @throws InterruptedException
 	 */
-	public IREOSExample[] evaluateSolution(SVMExamples data, List<Integer> outliers, int[] ranking) {
+	public IREOSExample[] evaluateSolution(SVMExamples data, List<Integer> outliers, float[] weights)
+			throws InterruptedException {
 		/* Evaluating separability of each outlier */
 		IREOSExample[] evaluatedExamples = new IREOSExample[outliers.size()];
 		double beta = (double) 1 / getmCl();
 		double cs[] = data.get_cs();
 		for (int j = 0; j < cs.length; j++) {
-			cs[j] = cs[j] * (Math.pow(beta, 1 - (double) ranking[j] / cs.length));
+			cs[j] = cs[j] * (Math.pow(beta, weights[j]));
 		}
 		data.set_cs(cs);
 
-		for (int i = 0; i < outliers.size(); i++) {
-			System.out.println(i);
-			int outlier = outliers.get(i);
-			int l;
-			evaluatedExamples[i] = new IREOSExample(outlier, gammas);
-			/* Evaluating separability of each outlier for each gamma */
-			/* Initializing threads */
-			MaximumMarginClassifier threads;
-
-			for (l = 0; l < gammas.length; l++) {
-				threads = new MaximumMarginClassifier(data, gammas[l], outlier);
-				threads.run();
-				evaluatedExamples[i].setSeparability(threads.getP(), l);
-
-				if (threads.getP() == 1)
+		MaximumMarginClassifierThread threads[] = new MaximumMarginClassifierThread[number_of_threads];
+		for (int i = 0; i < number_of_threads; i++) {
+			threads[i] = new MaximumMarginClassifierThread(null, gammas, -1);
+		}
+		int i = 0;
+		for (; i < outliers.size(); i++) {
+			for (int t = 0; t < number_of_threads; t++) {
+				System.out.println(i);
+				int outlier = outliers.get(i);
+				evaluatedExamples[i] = new IREOSExample(outlier, gammas);
+				threads[t] = new MaximumMarginClassifierThread(data, gammas, outlier);
+				threads[t].start();
+				i++;
+				if (i >= outliers.size())
 					break;
 			}
-
-			for (; l < gammas.length; l++)
-				evaluatedExamples[i].setSeparability(1, Arrays.binarySearch(gammas, gammas[l]));
+			for (MaximumMarginClassifierThread maximumMarginClassifierThread : threads) {
+				maximumMarginClassifierThread.join();
+				evaluatedExamples[maximumMarginClassifierThread.getOutlierIndex()]
+						.setSeparability(maximumMarginClassifierThread.getSeparability());
+			}
+			i--;
 		}
 
 		return evaluatedExamples;
@@ -161,37 +146,11 @@ public class IREOS {
 	}
 
 	/**
-	 * Save the solution, it includes the expected value, variance and the
-	 * separability of each observation in the dataset for each gamma
-	 * 
-	 * @param file
-	 *            Path of the file where the statistics will be stored
-	 * @param statistics
-	 *            Statistics that will be stored
-	 */
-	public void saveStatistics(String file, IREOSStatistics statistics, int n) throws Exception {
-		FileWriter writer = new FileWriter(file);
-		BufferedWriter bufferedWriter = new BufferedWriter(writer);
-		bufferedWriter.write(
-				"# Expected Value " + statistics.getExpectedValue() + " Variance: " + statistics.getVariance(n) + "\n");
-
-		for (IREOSExample record : statistics.examples) {
-			bufferedWriter.write("# " + record.getIndex() + "\n");
-			for (int i = 0; i < record.getGammas().length; i++) {
-				String line = record.getGammas()[i] + " " + record.getSeparability()[i] + "\n";
-				bufferedWriter.write(line);
-			}
-		}
-		bufferedWriter.flush();
-		bufferedWriter.close();
-	}
-	
-	/**
 	 * Look for the maximum gamma by increasing gradually gamma until all the
 	 * outliers are separable using the default increasing
 	 */
-	public void findGammaMax() throws Exception {
-		findGammaMax(1.1f);
+	public void findGammaMax(List<Integer> outliers) throws Exception {
+		findGammaMax(1.1f, outliers);
 	}
 
 	/**
@@ -203,46 +162,33 @@ public class IREOS {
 	 * @throws Exception
 	 *             Rate of increasing must be higher than 1
 	 */
-	public void findGammaMax(double rateofIncreaseGammaMax) throws Exception {
+	public void findGammaMax(double rateofIncreaseGammaMax, List<Integer> outliers) throws Exception {
 		if (rateofIncreaseGammaMax > 1) {
-			/* Add all the outliers in a list */
-			List<Integer> outliers = new ArrayList<Integer>();
-			for (int[] solution : solutions) {
-				for (int i = 0; i < solution.length; i++) {
-					if (solution[i] > 0) {
-						if (!outliers.contains(i))
-							outliers.add(i);
-					}
-				}
-			}
 			/* Initial gamma based on the data dimensionality */
 			gammaMax = (double) 1 / (dataset.get_dim() * 1000);
 			/* Initialize a maximum margin classifier per thread */
-			MaximumMarginClassifierThread[] threads = new MaximumMarginClassifierThread[number_of_threads];
+			MaximumMarginClassifierThread2[] threads = new MaximumMarginClassifierThread2[number_of_threads];
 			for (int i = 0; i < number_of_threads; i++)
-				threads[i] = new MaximumMarginClassifierThread(null, -1, -1);
+				threads[i] = new MaximumMarginClassifierThread2(null, -1, -1);
 			/*
-			 * Verify if the outlier is separable using the actual gamma
-			 * maximum, if so, the outlier is removed from the list, otherwise
-			 * the gamma maximum is increased, this procedure is repeated until
-			 * the list is empty
+			 * Verify if the outlier is separable using the actual gamma maximum, if so, the
+			 * outlier is removed from the list, otherwise the gamma maximum is increased,
+			 * this procedure is repeated until the list is empty
 			 */
 			while (!outliers.isEmpty()) {
 				int listOutlierIndex = 0;
-				for (int i = 0; (i < number_of_threads)
-						&& (i < outliers.size()); i++) {
+				for (int i = 0; (i < number_of_threads) && (i < outliers.size()); i++) {
 					if (!threads[i].isAlive()) {
 						if (threads[i].getP() > 0.5) {
-							outliers.remove(new Integer(threads[i]
-									.getOutlierIndex()));
+							outliers.remove(new Integer(threads[i].getOutlierIndex()));
 							if (outliers.isEmpty())
 								break;
 						} else {
 							if (threads[i].getGamma() == gammaMax)
 								gammaMax = gammaMax * rateofIncreaseGammaMax;
 						}
-						threads[i] = new MaximumMarginClassifierThread(dataset,
-								gammaMax, outliers.get(listOutlierIndex));
+						threads[i] = new MaximumMarginClassifierThread2(dataset, gammaMax,
+								outliers.get(listOutlierIndex));
 						threads[i].start();
 						listOutlierIndex++;
 					}
@@ -253,9 +199,7 @@ public class IREOS {
 				try {
 					t.join();
 				} catch (InterruptedException e) {
-					System.out
-							.println("Error while waiting for threads that were looking for maximum gamma: "
-									+ e);
+					System.out.println("Error while waiting for threads that were looking for maximum gamma: " + e);
 				}
 			}
 		} else
@@ -281,15 +225,7 @@ public class IREOS {
 	 *             Maximum clump size must be higher than 0
 	 */
 	public void setmCl(int mCl) throws Exception {
-		/*
-		 * if (mCl <= 0) throw new Exception(
-		 * "The maximum clump size (mCl) must be higher than 0"); else { if (mCl >
-		 * getn()) System.err .println(
-		 * "The maximum clump size (mCl) should not be higher than the number of outliers"
-		 * );
-		 */
 		this.mCl = mCl;
-		// }
 	}
 
 	/**
@@ -352,27 +288,6 @@ public class IREOS {
 	 */
 	public void setDataset(SVMExamples dataset) {
 		this.dataset = dataset;
-	}
-
-	/**
-	 * Get the list of solutions to be evaluated
-	 * 
-	 */
-	public List<int[]> getSolutions() {
-		return solutions;
-	}
-
-	/**
-	 * Set the list of solutions to be evaluated, only the labels: 1 (outlier) and
-	 * -1 (inlier)
-	 * 
-	 * @param solutions
-	 *            The list of solutions to be evaluated, each list element must be a
-	 *            vector that represent if the correspondent dataset element is an
-	 *            outlier (1) or an inlier (-1)
-	 */
-	public void setSolutions(List<int[]> solutions) {
-		this.solutions = solutions;
 	}
 
 	/**

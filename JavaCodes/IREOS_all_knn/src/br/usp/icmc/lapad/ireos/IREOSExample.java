@@ -59,7 +59,10 @@ public class IREOSExample {
 	public void setSeparability(double separability, int index) {
 		this.separability[index] = separability;
 	}
-
+	
+	public void setSeparability(double[] separability) {
+		this.separability = separability;
+	}
 	/**
 	 * Get the set of gammas used to evaluated the observation separability
 	 *

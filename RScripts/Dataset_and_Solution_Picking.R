@@ -211,9 +211,85 @@ runPickDatasets <- function(pathin, pathout, dataset){
 	runScoringNormalization(pathout, dataset)
 }
 
+compileResults <- function(){
+	path = "/home/henrique/ireos_extension/Datasets/Real/"
+	files = list.files(paste(path, "/results/cl1", sep =""))
+	pdf("correlations.pdf")
+	
+	best = c()
+	irs = c()
+	box = c()
+	for(i in files){
+		f = read.table(paste(path, "/results/cl1/", i, "/1", sep=""))
+		x = unique(f[,2])
+		pts = c()
+		for (j in seq(1, nrow(f), 100)){
+			y = f[j:(j+99),3]
+			value = 0
+			for(j in 2:length(y)){
+				value = value + (x[j] - x[(j - 1)]) * (y[j - 1] + y[j])
+			}
+			value = value/2
+			value = value/max(x)
+			pts = c(pts, value)
+		}
+
+		ir = c()
+		sol = list.files(paste(path, "/solutions/", i , sep="/"))
+		sol = sort(as.numeric(sol))
+		for(j in sol){
+			w = read.table(paste(path, "/weight/normalized_scores/", i, j, sep = "/"), header = FALSE, sep = "\n", stringsAsFactors = FALSE)
+			ireos = sum((w/sum(w)) * pts)		
+			ir = c(ir, ireos)
+		}
+
+		measures = read.table(paste(path, "/solutions_info/", i, sep  = ""), header = T )
+		M = apply(cbind(measures[,4:7], ir), 2, as.numeric)
+		colnames(M)[5] = "ext-IREOS"
+		colnames(M)[2] = "AP"
+		colnames(M)[1] = "ROC AUC"
+		colnames(M)[3] = "prec@n"
+		colnames(M)[4] = "Max-F1"
+		corrplot(cor(M, method="spearman"), method = "color", addCoef.col="black", title=i, mar = c(0,0,1,0))
+		irs = c(irs, cor(M[,1], M[,5], method="spearman"))
+		print("---------")
+		print(cor(M[,1], M[,5], method="spearman"))
+		print("---------")
+		best = c(best, sort.list(ir, dec=T)[1])
+		box = c(box, M[sort.list(ir, dec=T)[1],1])
+	}	
+	dev.off()
+
+}
+
+plotBoxPlot <- function(pts){
+	pdf("boxplot.pdf")
+	datasets = list.files("/home/henrique/ireos_extension/Datasets/Real/solutions_info/", full.names = T)
+	box = c()
+	for(i in datasets){
+		infos = read.table(i, header = T, stringsAsFactors = F)
+		box = rbind(box, cbind(infos[1,1], infos[,4]))
+	}
+	datasets = unlist(strsplit(datasets, "/"))[seq(7,length(datasets)*7,7)]
+	datasets = unlist(lapply(strsplit(datasets, "_") , '[', 1))
+	box = as.data.frame(box, stringsAsFactors = F)
+	colnames(box)[1] = "Datasets"
+	colnames(box)[2] = "ROC AUC"
+	box$ROCAUC = as.numeric(box$ROCAUC)
+	boxplot(ROCAUC ~ datasets, data = box, xaxt="n", ylab = "ROC AUC", ylim = c(0,1))
+	#axis(1, at = 1:15, labels = strtrim(datasets, 9), las = 3)
+
+
+#	text(seq(0.5, 18.5, by=1.1), par("usr")[3] - 0.075, labels = datasets, srt = 45, pos = 1, xpd = TRUE)
+	#points(x = 1:15, pts, pch = 4)
+	dev.off()
+}
+
+
 library(foreign)
 library(fields)
 library(parallel)
+library(corrplot)
 source("RL/Utils.R")
 cores = 2
 path = "/home/henrique/FullData/"
@@ -229,9 +305,10 @@ computed = unique(computed)
 for(i in datasets){
 	if(!(i %in% computed)){
 		runSummarizeByDataset(path, i, 2)
+		runPickDatasets(path, "/home/henrique/ireos_extension/Datasets/Real", runBestDatasetsBy(path, i, 18, 5))
 	}
-	runPickDatasets(path, "/home/henrique/ireos_extension/Datasets/Real", runBestDatasetsBy(path, i, 18, 5))
 }
+
 
 
 
