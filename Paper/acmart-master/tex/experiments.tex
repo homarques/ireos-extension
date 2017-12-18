@@ -1,0 +1,82 @@
+%!TEX root = ../sample-acmlarge.tex
+
+\subsection{Datasets}
+In this section, we give the presentation of the datasets used in this article. The datasets have been organized into two groups: the first, presented in Sect. \ref{sec:datasets:synthetic}, consists of sets synthetic datasets specifically designed by \cite{zimek2013b} for the evaluation of outlier detection algorithms; the second group, presented in Sect. \ref{sec:datasets:real}, consists of publicly available real world datasets, part of these datasets belongs to the publicly available outlier detection repository created by \cite{campos2016} and the other part was used before in the IREOS evaluation \cite{marques2015}. 
+
+\subsubsection{Synthetic Datasets}
+\label{sec:datasets:synthetic}
+The 30 synthetic datasets used in the experiments were extracted from \cite{zimek2013b} (batch1). These datasets were specifically designed and used for the evaluation of outlier detection algorithms. Each dataset is composed of a mixture of Gaussians following parameters in the given range: dimensionality $[20, \dots, 40]$, number of clusters $[2, \dots, 10]$, for each cluster independently the number of points $[600, \dots, 1000]$. Based on the covariance matrix, the Mahalanobis distance between the mean of a cluster and each cluster point is computed. The distribution of the Mahalanobis distances follows a $\chi^2$ distribution with $d$ degrees of freedom. Those points that exhibit a distance to their cluster center larger than the theoretical 0.975 quantile were labeled as outliers, independently of the actually occurring Mahalanobis distances of the sampled points. This results in an expected amount of 2.5\% outliers per dataset.
+
+\subsubsection{Real World Datasets}
+\label{sec:datasets:real}
+In addition to the synthetic datasets, we use (23 + 4 - 4) publicly available real world datasets. 19 of them belong to a publicly available outlier detection repository \cite{campos2016}, this repository make publicly available approximately 1000 variants of datasets from 23 main datasets, these variants can differ in the use or not of normalization, the removal or not of duplicates and in 	the downsampling rates of the outliers. Excluding the \textit{WPBC} dataset, due to randomness of outlier detection algorithm results (the highest value of ROC AUC is 0.58 for the 12 algorithms over the 100 values of parameters used in the benchmark), and the datasets \textit{ALOI}, \textit{KDDCup99} and \textit{PageBlocks}, due to the size of the datasets, one variation of each dataset was chosen. In order to select the variant of the dataset, we use the ``difficulty'' index, that is one of the indexes proposed by the authors in this benchmark to characterize the properties of the datasets. This index basically measure the agreement of a set of representative outlier detection methods with the labeling of the ground truth, so that a high value of index indicates that most or all methods have difficulty in finding the outliers. %sendo assim possivelmente a rotulação do ground truth não corresponde a localização espacial dos dados
+However, the index cannot be used to compare dataset variants across the different outlier downsampling rates, the reason is that this index is computed using a binned rank, where the first $n$ rank positions are assigned to Bin 1, the second $n$ positions are assigned Bin 2, and so on, up to Bin number 9, and all ranks higher than $9 \cdot n$ are assigned to Bin 10. When compared two variants with different downsampling rates, the variant with the lowest number of outlier is likely to have higher score just by chance, \textit{e. g.} the \textit{Parkinson} dataset has one variant with 75\% of outliers and other with 4\% of outliers, the observations of the former will be assigned at most for the Bin 2, while the observations of the latter will need to be ranked between the top 4\% and 8\% of the dataset to be assigned to the same Bin 2.
+
+\begin{equation}
+bin(\mathbf{x}_i, m_j) = min \left( 10, \left\lceil \frac{ranking(\mathbf{x}_i, m_j)}{n} \right\rceil \right)
+\end{equation}
+
+\begin{equation}
+difficulty = \frac{1}{|\mathbf{m}| \cdot n} \sum_{m_j \in \mathbf{m}} \sum_{\mathbf{x}_i \in \mathbf{GT}} bin(\mathbf{x}_i, m_j)
+\end{equation}
+
+\begin{equation}
+bin(\mathbf{x}_i, m_j) = \frac{ranking(\mathbf{x}_i, m_j)}{n}
+\end{equation}
+
+\begin{equation}
+difficulty = \frac{1}{|\mathbf{m}| \cdot n} \sum_{m_j \in \mathbf{m}} \sum_{\mathbf{x}_i \in \mathbf{GT}} bin(\mathbf{x}_i, m_j)
+\end{equation}
+
+\begin{equation}
+E(bin) = \frac{N + 1}{2n}
+\end{equation}
+
+\begin{equation}
+Max = \frac{N(2N - n)}{2n}
+\end{equation}
+
+
+\subsection{Methods and Measures}
+In our experiments we evaluate results by contrasting the recommendations made by the proposed index IREOS extensions against the ground truth, i.e., against the labels as provided in the datasets (notice that these labels are not used by our index in any way). We then study the relationship between the quality assessments of the solutions with respect to the ground truth and the quality assessments of the solutions computed by IREOS. To assess the quality of a given solution with respect to the ground truth we are consider 4 external measures: precision-at-$n$ (prec@$n$), average precision (AP), area under the ROC curve (ROC AUC) and Maximum F1-Measure (Max-F1).
+
+\subsection{Results}
+
+% Please add the following required packages to your document preamble:
+% \usepackage{booktabs}
+\begin{table}[]
+\centering
+\caption{My caption}
+\label{my-label}
+\begin{tabular}{@{}llllllll@{}}
+\toprule
+\multicolumn{1}{l}{Dataset} & Min & Max & \multicolumn{1}{l}{Avg} & \multicolumn{2}{l}{ext-IREOS ($m_{cl} = 1$)} & \multicolumn{2}{l}{ext-IREOS($m_{cl} = n$)} \\ \midrule
+\multicolumn{1}{l|}{Arrhythmia}        &  0.5003   &   0.9156  & \multicolumn{1}{l|}{0.7368}    &     0.8794     & \multicolumn{1}{l|}{KNN}         &         0.8794           &       KNN             \\
+\multicolumn{1}{l|}{Cardiotocography}        &    0.513 &   0.8199  & \multicolumn{1}{l|}{0.6716}    &     0.7559     & \multicolumn{1}{l|}{KNN}         &     0.8199               &     LDF               \\
+\multicolumn{1}{l|}{Glass}        &  0.4921   &  0.9035   & \multicolumn{1}{l|}{0.6987}    &     0.8585     & \multicolumn{1}{l|}{SimplifiedLOF}         &      0.9035              &        LDF            \\
+\multicolumn{1}{l|}{Heart Disease}        &   0.3867  &  0.9695   & \multicolumn{1}{l|}{0.687}    &    0.8467      & \multicolumn{1}{l|}{KNNW}         &        0.9695            &      KNN              \\
+\multicolumn{1}{l|}{Hepatitis}        &  0.0746   &  0.9602   & \multicolumn{1}{l|}{0.5219}    &     0.9602     & \multicolumn{1}{l|}{COF}         &           0.9602         &          COF          \\
+\multicolumn{1}{l|}{Ionosphere}        &  0.5143   &  0.9603   & \multicolumn{1}{l|}{0.745}    &   0.8677       & \multicolumn{1}{l|}{LoOP}         &          0.8677          &        LoOP            \\
+\multicolumn{1}{l|}{Isolet}        &  0.1962   &  1   & \multicolumn{1}{l|}{0.6077}    &     1     & \multicolumn{1}{l|}{KNN}         &            1        &               KNN     \\
+\multicolumn{1}{l|}{Lymphography}        &   0.4131  &   1  & \multicolumn{1}{l|}{0.7117}    &     1     & \multicolumn{1}{l|}{FastABOD}         &              1      &          FastABOD          \\
+\multicolumn{1}{l|}{Multiple Feature}        &  0.3613   &  0.9937   & \multicolumn{1}{l|}{0.6862}    &     0.7917     & \multicolumn{1}{l|}{KNN}         &       0.9937             &       COF             \\
+\multicolumn{1}{l|}{Optical Digits}        &   0.222  &   0.9993  & \multicolumn{1}{l|}{0.6157}    &     0.9993     & \multicolumn{1}{l|}{KNN}         &            0.7477        &     LDF               \\
+\multicolumn{1}{l|}{Parkinson}        &  0.4479   &   1  & \multicolumn{1}{l|}{0.7646}    &     1     & \multicolumn{1}{l|}{FastABOD}         &         1           &          FastABOD          \\
+\multicolumn{1}{l|}{Pima}        &   0.4636   &   0.779  & \multicolumn{1}{l|}{ 0.6273}    &     0.7466     & \multicolumn{1}{l|}{KNNW}         &         0.7466           &     KNNW               \\
+\multicolumn{1}{l|}{Shuttle}        &   0.4154  &   0.9922  & \multicolumn{1}{l|}{0.7085}    &     0.9313     & \multicolumn{1}{l|}{LoOP}         &        0.8701            &     KNNW               \\
+\multicolumn{1}{l|}{Spam Base}        &  0.4626   &  0.7794  & \multicolumn{1}{l|}{0.6245}    &   0.7794       & \multicolumn{1}{l|}{KNNW}         &         0.7794           &        KNNW            \\
+\multicolumn{1}{l|}{Stamps}        &  0.3797   &   0.9207  & \multicolumn{1}{l|}{0.6547}    &   0.9207       & \multicolumn{1}{l|}{KNN}         &         0.9207           &        KNN            \\
+\multicolumn{1}{l|}{Vowel}        &  0.2233   &   1  & \multicolumn{1}{l|}{0.6142}    &       1   & \multicolumn{1}{l|}{FastABOD}         &            0.9156        &               COF     \\
+\multicolumn{1}{l|}{WBC}        &   0.4385  &   0.9972  & \multicolumn{1}{l|}{0.7209}    &   0.9972       & \multicolumn{1}{l|}{KNN}         &        0.9972            &      KNN              \\
+\multicolumn{1}{l|}{WDBC}        &   0.3415  &   1  & \multicolumn{1}{l|}{0.6893}    &      1    & \multicolumn{1}{l|}{COF}         &          1          &       COF             \\
+\multicolumn{1}{l|}{WPBC}        &   0.4007  &  0.5829   & \multicolumn{1}{l|}{0.4929}    &      0.5432    & \multicolumn{1}{l|}{LDF}         &            0.5432        &       LDF             \\ \bottomrule
+\end{tabular}
+\end{table}
+
+\newpage
+
+%datasets across different downsampling rates
+
+%Difficulty of a dataset is simply defined as the average of the (binned) ranks of all outliers in the dataset reported by the given set of outlier methods (for each variant shown in Fig. 5, this is the average bin number depicted in the corresponding plot). Datasets with low difficulty score contain outliers that are relatively easy to detect by the majority of methods. A high difficulty score indicates that most or all methods have difficulty in finding the outliers.
+
+%using the best overall solution (the best value for k) according to ROC AUC. for a dataset represents the (binned) rank that the method x has given to ground truth outlier y. Given n outliers in the ground truth of a dataset, and a ranking of all N points in that dataset by an outlier method, the first n rank positions are assigned to Bin 1 (thus outliers whose rank falls into this bin would have contributed to the P@n score for that method), the second n positions are assigned Bin 2 (outliers falling in this bin would have contributed to the P@2n for that method but not to the P@n score), and so on, up to Bin number 9,9 and all ranks higher than 9⋅n are assigned to bin 10.

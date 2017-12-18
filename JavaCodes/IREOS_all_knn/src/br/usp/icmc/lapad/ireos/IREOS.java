@@ -32,7 +32,7 @@ public class IREOS {
 	private float[] weights;
 
 	/* Number of threads to be used */
-	private int number_of_threads = 10; // Runtime.getRuntime().availableProcessors()
+	private int number_of_threads = 50; // Runtime.getRuntime().availableProcessors()
 
 	/** Constructor receive the dataset and list of solutions to be evaluated */
 	public IREOS(SVMExamples dataset, int[] solution, float[] weights, int strategy) {
