@@ -220,7 +220,7 @@
 author = {Hans-Peter Kriegel and Peer Kr\"{o}ger and Erich Schubert and Arthur Zimek},
 title = {Interpreting and Unifying Outlier Scores},
 booktitle = {Proceedings of the 2011 SIAM International Conference on Data Mining},
-series = {SIAM '11},
+series = {SDM '11},
 pages = {13-24},
 year = {2011},
 doi = {10.1137/1.9781611972818.2},
@@ -242,7 +242,7 @@ address = {Arizona, USA}
 author = {Erich Schubert and Remigius Wojdanowski and Arthur Zimek and Hans-Peter Kriegel},
 title = {On Evaluation of Outlier Rankings and Outlier Scores},
 booktitle = {Proceedings of the 2012 SIAM International Conference on Data Mining},
-series = {SIAM '12},
+series = {SDM '12},
 pages = {1047-1058},
 year = {2012},
 doi = {10.1137/1.9781611972825.90},
@@ -258,7 +258,73 @@ address = {California, USA}
  pages = {428--436},
  doi = {10.1145/2487575.2487676},
  address = {New York, USA}
- } 
+ }
+
+@inproceedings{ramaswamy2000,
+ author = {Ramaswamy, Sridhar and Rastogi, Rajeev and Shim, Kyuseok},
+ title = {Efficient Algorithms for Mining Outliers from Large Data Sets},
+ booktitle = {Proceedings of the 2000 ACM SIGMOD International Conference on Management of Data},
+ series = {SIGMOD '00},
+ year = {2000},
+ pages = {427--438},
+ doi = {10.1145/342009.335437},
+ address = {New York, NY, USA}
+}
+
+@inproceedings{hautamaki2004, 
+author={V. Hautamaki and I. Karkkainen and P. Franti}, 
+title={Outlier detection using k-nearest neighbour graph}, 
+booktitle={Proceedings of the 17th International Conference on Pattern Recognition}, 
+series = {ICPR '04},
+year={2004}, 
+pages={430-433}, 
+doi={10.1109/ICPR.2004.1334558}, 
+location = {Cambridge, UK}
+}
+
+@inproceedings{breunig2000,
+ author = {Breunig, Markus M. and Kriegel, Hans-Peter and Ng, Raymond T. and Sander, J\"{o}rg},
+ title = {LOF: Identifying Density-based Local Outliers},
+ booktitle = {Proceedings of the 2000 ACM SIGMOD International Conference on Management of Data},
+ series = {SIGMOD '00},
+ year = {2000},
+ pages = {93--104},
+ doi = {10.1145/342009.335388},
+ address = {New York, NY, USA}
+}
+
+@inproceedings{kriegel2009,
+ author = {Kriegel, Hans-Peter and Kr\"{o}ger, Peer and Schubert, Erich and Zimek, Arthur},
+ title = {LoOP: Local Outlier Probabilities},
+ booktitle = {Proceedings of the 18th ACM Conference on Information and Knowledge Management},
+ series = {CIKM '09},
+ year = {2009},
+ pages = {1649--1652},
+ doi = {10.1145/1645953.1646195},
+ location = {Hong Kong, China}
+}
+
+@inproceedings{kriegel2008,
+ author = {Kriegel, Hans-Peter and S hubert, Matthias and Zimek, Arthur},
+ title = {Angle-based Outlier Detection in High-dimensional Data},
+ booktitle = {Proceedings of the 14th ACM SIGKDD International Conference on Knowledge Discovery and Data Mining},
+ series = {KDD '08},
+ year = {2008},
+ pages = {444--452},
+ doi = {10.1145/1401890.1401946},
+ location = {Las Vegas, Nevada, USA}
+} 
+
+@inproceedings{schubert2014b,
+author = {Erich Schubert and Arthur Zimek and Hans-Peter Kriegel},
+title = {Generalized Outlier Detection with Flexible Kernel Density Estimates},
+booktitle = {Proceedings of the 2014 SIAM International Conference on Data Mining},
+series = {SDM '14},
+year = {2014},
+pages = {542-550},
+doi = {10.1137/1.9781611973440.63},
+location = {Philadelphia, PA, USA}
+}
 
 @Book{hastie2013,
   Title                    = {The Elements of Statistical Learning: Data Mining, Inference, and Prediction},
@@ -281,7 +347,67 @@ address = {California, USA}
  title = {Learning with Kernels: Support Vector Machines, Regularization, Optimization, and Beyond},
  year = {2001},
  publisher = {MIT Press}
-} 
+}
+
+@Inbook{angiulli2002,
+author="Angiulli, Fabrizio and Pizzuti, Clara", 
+editor="Elomaa, Tapio and Mannila, Heikki and Toivonen, Hannu",
+title="Fast Outlier Detection in High Dimensional Spaces",
+bookTitle="Principles of Data Mining and Knowledge Discovery: 6th European Conference, PKDD 2002 Helsinki, Finland, August 19--23, 2002 Proceedings",
+year="2002",
+publisher="Springer Berlin Heidelberg",
+address="Berlin, Heidelberg",
+pages="15--27",
+doi="10.1007/3-540-45681-3_2"
+}
+
+@Inbook{zhang2009,
+author="Zhang, Ke and Hutter, Marcus and Jin, Huidong",
+editor="Theeramunkong, Thanaruk and Kijsirikul, Boonserm and Cercone, Nick and Ho, Tu-Bao",
+title="A New Local Distance-Based Outlier Detection Approach for Scattered Real-World Data",
+bookTitle="Advances in Knowledge Discovery and Data Mining: 13th Pacific-Asia Conference, PAKDD 2009 Bangkok, Thailand, April 27-30, 2009 Proceedings",
+year="2009",
+publisher="Springer Berlin Heidelberg",
+address="Berlin, Heidelberg",
+pages="813--822",
+doi="10.1007/978-3-642-01307-2_84",
+}
+
+@Inbook{latecki2007,
+author="Latecki, Longin Jan and Lazarevic, Aleksandar and Pokrajac, Dragoljub",
+editor="Perner, Petra",
+title="Outlier Detection with Kernel Density Functions",
+bookTitle="Machine Learning and Data Mining in Pattern Recognition: 5th International Conference, MLDM 2007, Leipzig, Germany, July 18-20, 2007. Proceedings",
+year="2007",
+publisher="Springer Berlin Heidelberg",
+address="Berlin, Heidelberg",
+pages="61--75",
+doi="10.1007/978-3-540-73499-4_6",
+}
+
+@Inbook{jin2006,
+author="Jin, Wen and Tung, Anthony K. H. and Han, Jiawei and Wang, Wei",
+editor="Ng, Wee-Keong and Kitsuregawa, Masaru and Li, Jianzhong and Chang, Kuiyu",
+title="Ranking Outliers Using Symmetric Neighborhood Relationship",
+bookTitle="Advances in Knowledge Discovery and Data Mining: 10th Pacific-Asia Conference, PAKDD 2006, Singapore, April 9-12, 2006. Proceedings",
+year="2006",
+publisher="Springer Berlin Heidelberg",
+address="Berlin, Heidelberg",
+pages="577--593",
+doi="10.1007/11731139_68",
+}
+
+@Inbook{tang2002,
+author="Tang, Jian and Chen, Zhixiang and Fu, Ada Wai-chee and Cheung, David W.",
+editor="Chen, Ming-Syan and Yu, Philip S. and Liu, Bing",
+title="Enhancing Effectiveness of Outlier Detections for Low Density Patterns",
+bookTitle="Advances in Knowledge Discovery and Data Mining: 6th Pacific-Asia Conference, PAKDD 2002 Taipei, Taiwan, May 6--8, 2002 Proceedings",
+year="2002",
+publisher="Springer Berlin Heidelberg",
+address="Berlin, Heidelberg",
+pages="535--548",
+doi="10.1007/3-540-47887-6_53",
+}
 
 @techreport{osuna1997,
  author = {Osuna, Edgar and Freund, Robert and Girosi, Federico},
@@ -318,3 +444,28 @@ publisher = {Springer},
 address = {New York, NY, USA}
 }
 
+@article{angiulli2005, 
+author={Angiulli, Fabrizio and Pizzuti, Clara}, 
+title={Outlier Mining in Large High-Dimensional Data Sets},
+journal={IEEE Transactions on Knowledge and Data Engineering}, 
+volume={17}, 
+number={2}, 
+year={2005}, 
+pages={203-215}, 
+doi={10.1109/TKDE.2005.31}, 
+publisher = {IEEE},
+address = {New York, NY, USA}
+}
+
+@article{schubert2014,
+author="Schubert, Erich and Zimek, Arthur and Kriegel, Hans-Peter",
+title="Local Outlier Detection Reconsidered: A Generalized View on Locality with Applications to Spatial, Video, and Network Outlier Detection",
+journal="Data Mining and Knowledge Discovery",
+volume="28",
+number="1",
+year="2014",
+pages="190--237",
+doi={10.1007/s10618-012-0300-z},
+publisher = {Springer},
+address = {New York, NY, USA}
+}

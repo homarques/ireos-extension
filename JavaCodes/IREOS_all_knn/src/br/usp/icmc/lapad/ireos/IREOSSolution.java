@@ -6,8 +6,6 @@ import org.apache.commons.math3.distribution.TDistribution;
 public class IREOSSolution {
 	/* Observations labeled as outliers in this solution */
 	public IREOSExample examples[];
-	/* IREOS statistics to this dataset */
-	private IREOSStatistics statistics;
 	/* Gamma maximum */
 	private double gammaMax;
 	/*
@@ -79,21 +77,7 @@ public class IREOSSolution {
 		this.weights = weights;
 	}
 
-	/**
-	 * Adjust IREOS index for chance
-	 * 
-	 * @throws Exception
-	 *             The IREOS expected value for this dataset must be computed
-	 *             before
-	 */
-	public double getAdjustedIREOS() throws Exception {
-		if (statistics != null) {
-			if (adjustedIREOS == -1)
-				adjustedIREOS = (getAUC() - statistics.getExpectedValue()) / (gammaMax - statistics.getExpectedValue());
-			return adjustedIREOS;
-		} else
-			throw new Exception("Variable statistics must be setted before by the method: setStatistics");
-	}
+
 
 	/**
 	 * Compute and get IREOS index for this solution
@@ -128,36 +112,6 @@ public class IREOSSolution {
 	}
 
 	/**
-	 * Compute z-test
-	 * 
-	 * @throws Exception
-	 *             The IREOS expected value and variance for this dataset must
-	 *             be computed before
-	 */
-	public double zTest() throws Exception {
-		if (statistics != null) {
-			double zscore = (getAUC() - statistics.getExpectedValue()) / Math.sqrt(statistics.getVariance(n));
-			return normal.cumulativeProbability(1 - zscore);
-		} else
-			throw new Exception("Variable statistics must be setted before by the method: setStatistics");
-	}
-
-	/**
-	 * Compute t-test
-	 * 
-	 * @throws Exception
-	 *             The IREOS expected value and variance for this dataset must
-	 *             be computed before
-	 */
-	public double tTest() throws Exception {
-		if (statistics != null) {
-			double tscore = (getAUC() - statistics.getExpectedValue()) / Math.sqrt(statistics.getVariance(n));
-			return t.cumulativeProbability(1 - tscore);
-		} else
-			throw new Exception("Variable statistics must be setted before by the method: setStatistics");
-	}
-
-	/**
 	 * Compute AUC using the Trapezoidal Rule
 	 * 
 	 * @param x
@@ -187,24 +141,6 @@ public class IREOSSolution {
 			value +=  y[i];
 		value /= y.length;
 		return value;
-	}
-
-	/**
-	 * Get IREOS statistics to this dataset
-	 * 
-	 */
-	public IREOSStatistics getStatistics() {
-		return statistics;
-	}
-
-	/**
-	 * Set IREOS statistics to this dataset
-	 * 
-	 * @param statistics
-	 *            The IREOS statistics to this dataset
-	 */
-	public void setStatistics(IREOSStatistics statistics) {
-		this.statistics = statistics;
 	}
 
 	public int getn() {

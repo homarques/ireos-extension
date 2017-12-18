@@ -274,8 +274,8 @@ compileResults <- function(){
 		colnames(M)[6] = "ext-IREOS cl=n"
 		colnames(M)[2] = "AP"
 		colnames(M)[1] = "ROC AUC"
-		#colnames(M)[3] = "prec@n"
-		#colnames(M)[4] = "Max-F1"
+		colnames(M)[3] = "prec@n"
+		colnames(M)[4] = "Max-F1"
 		corrplot(cor(M, method="spearman"), method = "color", addCoef.col="black", title=i, mar = c(0,0,1,0))
 		irs11 = cor(M[,1], M[,5], method="spearman")
 		irs1n = cor(M[,1], M[,6], method="spearman")
@@ -348,7 +348,7 @@ compileResults <- function(){
 	}
 
 	plot_corr <- function(pts){
-		pdf("corr.pdf")
+		pdf("correlation_sep1.pdf")
 		datasets = pts[,1]
 		np = pts[,c(1,6,8,10,12)]
 		ntabelona = data.frame()
@@ -360,7 +360,7 @@ compileResults <- function(){
 			ntabelona[(k+3), 1] = np[i,1]
 			ntabelona[k, 2] = "AUC ROC"
 			ntabelona[(k+1), 2] = "AP"
-			ntabelona[(k+2), 2] = "prec@n"
+			ntabelona[(k+2), 2] = "Prec@n"
 			ntabelona[(k+3), 2] = "Max-F1"
 			ntabelona[k, 3] = np[i,2]
 			ntabelona[(k+1), 3] = np[i,3]
@@ -377,11 +377,47 @@ compileResults <- function(){
                                 "#FDDBC7", "#FFFFFF", "#D1E5F0", "#92C5DE",
                                 "#4393C3", "#2166AC", "#053061"))(200)
 
-		p = qplot(x=Measure, y=Dataset, data=ntabelona, fill=Value, geom="tile")  + geom_text(aes(Measure, Dataset, label = Value), color = "black", size = 4)
+		p1 = qplot(x=Measure, y=Dataset, data=ntabelona, fill=Value, geom="tile")  + geom_text(aes(Measure, Dataset, label = Value), color = "black", size = 4)
 
-		p = p + guides(fill=guide_legend(title="Spearman")) +theme_bw() + theme(panel.border = element_blank(), panel.grid.major = element_blank(),
-			panel.grid.minor = element_blank(), axis.line = element_blank(), axis.ticks = element_blank()) + xlab("") + ylab("")+ scale_fill_gradientn(colours = col, limits=c(-1, 1))
-		p
+		p1 = p1 + guides(fill=guide_legend(title="Spearman")) +theme_bw() + theme(panel.border = element_blank(), panel.grid.major = element_blank(),
+			panel.grid.minor = element_blank(), axis.line = element_blank(), axis.ticks = element_blank()) + xlab("") + ylab("") + scale_fill_gradientn(colours = col, limits=c(-1, 1), guide=FALSE) + guides(fill=FALSE)
+		p1
+		dev.off()
+
+		pdf("correlation_sepn.pdf")
+		datasets = pts[,1]
+		np = pts[,c(1,7,9,11,13)]
+		ntabelona = data.frame()
+		k = 1
+		for(i in 1:nrow(np)){
+			ntabelona[k, 1] = np[i,1]
+			ntabelona[(k+1), 1] = np[i,1]
+			ntabelona[(k+2), 1] = np[i,1]
+			ntabelona[(k+3), 1] = np[i,1]
+			ntabelona[k, 2] = "AUC ROC"
+			ntabelona[(k+1), 2] = "AP"
+			ntabelona[(k+2), 2] = "Prec@n"
+			ntabelona[(k+3), 2] = "Max-F1"
+			ntabelona[k, 3] = np[i,2]
+			ntabelona[(k+1), 3] = np[i,3]
+			ntabelona[(k+2), 3] = np[i,4]
+			ntabelona[(k+3), 3] = np[i,5]
+			k = k+4
+		}
+		ntabelona[,1] = unlist(lapply(strsplit(ntabelona[,1], "_") , '[', 1))
+		ntabelona[,3] = round(as.numeric(ntabelona[,3]),3)
+		colnames(ntabelona) = c("Dataset","Measure","Value")
+		ntabelona$Dataset <- factor(ntabelona$Dataset)
+ 		ntabelona$Dataset <- factor(ntabelona$Dataset, levels = rev(levels(ntabelona$Dataset)))
+		col <- colorRampPalette(c("#67001F", "#B2182B", "#D6604D", "#F4A582",
+                                "#FDDBC7", "#FFFFFF", "#D1E5F0", "#92C5DE",
+                                "#4393C3", "#2166AC", "#053061"))(200)
+
+		p2 = qplot(x=Measure, y=Dataset, data=ntabelona, fill=Value, geom="tile")  + geom_text(aes(Measure, Dataset, label = Value), color = "black", size = 4)
+
+		p2 = p2 + guides(fill=guide_legend(title="Spearman")) +theme_bw() + theme(panel.border = element_blank(), panel.grid.major = element_blank(),
+			panel.grid.minor = element_blank(), axis.line = element_blank(), axis.ticks = element_blank()) + xlab("") + ylab("")+ scale_fill_gradientn(colours = col, limits=c(-1, 1)) + guides(fill=FALSE)
+		p2
 		dev.off()
 	}
 

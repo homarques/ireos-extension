@@ -91,23 +91,27 @@ public class IREOS {
 			threads[i] = new MaximumMarginClassifierThread(null, gammas, -1);
 		}
 		int i = 0;
-		for (; i < outliers.size(); i++) {
+		for (; i < outliers.size();) {
 			for (int t = 0; t < number_of_threads; t++) {
-				System.out.println(i);
-				int outlier = outliers.get(i);
-				evaluatedExamples[i] = new IREOSExample(outlier, gammas);
-				threads[t] = new MaximumMarginClassifierThread(data, gammas, outlier);
-				threads[t].start();
-				i++;
-				if (i >= outliers.size())
-					break;
+				if (!threads[t].isAlive()) {
+					if (threads[t].getOutlierIndex() != -1)
+						evaluatedExamples[threads[t].getOutlierIndex()].setSeparability(threads[t].getSeparability());
+					System.out.println(i);
+					int outlier = outliers.get(i);
+					evaluatedExamples[i] = new IREOSExample(outlier, gammas);
+					threads[t] = new MaximumMarginClassifierThread(data, gammas, outlier);
+					threads[t].start();
+					i++;
+					if (i >= outliers.size())
+						break;
+				}
 			}
-			for (MaximumMarginClassifierThread maximumMarginClassifierThread : threads) {
-				maximumMarginClassifierThread.join();
-				evaluatedExamples[maximumMarginClassifierThread.getOutlierIndex()]
-						.setSeparability(maximumMarginClassifierThread.getSeparability());
-			}
-			i--;
+		}
+
+		for (MaximumMarginClassifierThread maximumMarginClassifierThread : threads) {
+			maximumMarginClassifierThread.join();
+			evaluatedExamples[maximumMarginClassifierThread.getOutlierIndex()]
+					.setSeparability(maximumMarginClassifierThread.getSeparability());
 		}
 
 		return evaluatedExamples;
@@ -126,13 +130,7 @@ public class IREOS {
 	public void saveResult(String file, IREOSSolution solution) throws Exception {
 		FileWriter writer = new FileWriter(file);
 		BufferedWriter bufferedWriter = new BufferedWriter(writer);
-		if (solution.getStatistics() != null)
-			bufferedWriter.write("# IREOS " + solution.getIREOS() + " AdjIREOS: " + solution.getAdjustedIREOS()
-					+ " z-test: " + solution.zTest() + " t-test: " + solution.tTest() + " Mean: "
-					+ solution.getStatistics().getExpectedValue() + " Var: "
-					+ solution.getStatistics().getVariance(solution.getn()) + " n: " + solution.getn() + "\n");
-		else
-			bufferedWriter.write("# IREOS " + solution.getIREOS() + "\n");
+		bufferedWriter.write("# IREOS " + solution.getIREOS() + "\n");
 		for (IREOSExample record : solution.examples) {
 			bufferedWriter.write("# " + record.getIndex() + "\n");
 			for (int i = 0; i < record.getGammas().length; i++) {

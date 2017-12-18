@@ -15,7 +15,7 @@ public class MainExample2 {
 	private static final String DATA = "/home/hom/ireos_extension/Datasets/Real/data/";
 	private static final String WEIGHTS = "/home/hom/ireos_extension/Datasets/Real/weight/normalized_scores/";
 	private static final String GAMMA = "/home/hom/ireos_extension/Datasets/Real/GM/";
-	private static final String SAVE = "/home/hom/ireos_extension/Datasets/Real/results/cln/";
+	private static final String SAVE = "/home/hom/ireos_extension/Datasets/Real/results/cl1/";
 
 	/* 0 - trapezoide; 1 - media */
 	private static final int STRATEGY = 0;
@@ -23,10 +23,10 @@ public class MainExample2 {
 	/* 7 - log2; 8 - logn; 9 - log10 */
 	private static final int discretization = ParameterValueGrid.SCALE_LOGARITHMIC_LEGACY;
 
-	private static final char clumps = 'n';
+	private static final char clumps = '1';
 
 	public static void main(String[] args) throws Exception {
-	//	String args [] = {"Vowel", "10", "10"};
+		//String args [] = {"Vowel", "10", "10"};
 		String data = args[0];
 		int n = Integer.parseInt(args[2]);
 		System.out.println(data);
