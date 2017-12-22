@@ -55,10 +55,12 @@ Note that the modeling clumps is reduced to the one used before when all the inl
 
 %Note that the index will be reduced again to the original index when all the inliers receive 0 as outlier scorings and all the outliers receive 1 as the outlier scorings.
 
-%\subsubsection{Adjustment for Chance}
-%\subsubsection{Complexity}
-%\subsubsection{Approximate Computation}
-%\subsubsection{Internal Evaluation of Ranking Outlier Detection Results}
-%scorings não dizem muito, simples ranking tera peso linear qndo não é recomendado pq dos inliers q sao maioria
-%gammaMax
+\subsection{Approximate Computation}
+We are aware of the high computational complexity needed to evaluate the candidate solutions $\mathbf{y}$. For each candidate solution $\mathbf{y}$, we need to training $N \cdot n_{\gamma}$ classifiers. The maximum margin classifiers are known for the high asymptotic computational complexity $\mathcal{O}(N^3)$\footnote{SVM due to the support vector ($sv$) properties is $\mathcal{O}(sv \cdot N^2)$, but the worst case where $sv = N$ it becomes $\mathcal{O}(N^3)$ again} due to the Quadratic Programming (QP) solver used. 
+%Thus, the overall complexity to evaluate a candidate solution $\mathbf{y}$ is in general $\mathcal{O}(n_{\gamma} \cdot N^4)$.
+Due to the known high asymptotic computational complexity, work in the literature has focused on the speeding up of these classifiers. Such work can be categorized into two approaches: \textit{algorithmic} and \textit{data-processing}. While the first approach devises algorithms to make the QP solver faster \cite{platt1998, keerthi2005}, the latter approach focuses on the selection of the training data in order to reduce $N$ \cite{lee2001,panda2006}. Our approach to speeding up the computation of the our index falls in the latter approach.
+
+The most straightforward approach to reduce $N$ is randomly down-sample the training dataset \cite{lee2001}. However, when evaluated the individual separability of an observation, it is necessary a more informed sampling, because the separability of the observation can be highly affected depending on the down-sampled observations. While the closest observations highly affected where the decision boundary will be traced, the most distant observations affect practically nothing. In order to select the most effective training subset, based on the work of \cite{panda2006}, we will select only the k-Nearest Neighbors (kNN) of the observation being evaluated. Note that in this problem, an approximate-NN approach \cite{gionis1999, schubert2015} is suffice.
+
+
 \newpage

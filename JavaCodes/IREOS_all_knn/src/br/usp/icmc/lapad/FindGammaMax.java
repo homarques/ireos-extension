@@ -13,11 +13,12 @@ import br.usp.icmc.lapad.ireos.IREOS;
 import com.rapidminer.operator.learner.functions.kernel.jmysvm.examples.SVMExamples;
 
 public class FindGammaMax {
-	private static final String DATA = "/home/hom/ireos_extension/Datasets/Real/data/";
-	private static final String LABELS = "/home/hom/ireos_extension/Datasets/Real/weight/normalized_scores/";
-	private static final String GAMMA = "/home/hom/ireos_extension/Datasets/Real/GM/";
+	private static final String DATA = "/home/henrique/Synthetic/data/";
+	private static final String LABELS = "/home/henrique/Synthetic/weight/normalized_scores/";
+	private static final String GAMMA = "/home/henrique/Synthetic/GM/";
 
-	public static void main(String[] args) throws Exception {
+	public static void main(String[] argsx) throws Exception {
+		String args [] = {"gaussian20dim_4clusters_nr1"};
 		String dataset = DATA + args[0];
 		File[] computed = (new File(GAMMA)).listFiles();
 		ArrayList<String> comp = new ArrayList<String>();
@@ -58,6 +59,7 @@ public class FindGammaMax {
 
 			/* Initialize IREOS using the dataset and the solutions to be evaluated */
 			IREOS ireos = new IREOS(data);
+			ireos.setNumber_of_threads(2);
 
 			/* Find the gamma maximum */
 			ireos.findGammaMax(outliers);

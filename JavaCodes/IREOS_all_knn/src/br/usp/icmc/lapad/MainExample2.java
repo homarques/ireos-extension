@@ -70,7 +70,7 @@ public class MainExample2 {
 		 * Initialize IREOS using the dataset and the solutions to be evaluated
 		 */
 		IREOS ireos = new IREOS(dataset, detection, weights, STRATEGY);
-
+		ireos.setNumber_of_threads(Integer.parseInt(args[3]));
 		/* Find the gamma maximum */
 		BufferedReader readerMax = new BufferedReader(new FileReader(GAMMA + data));
 		double max = Double.parseDouble(readerMax.readLine());
@@ -78,7 +78,7 @@ public class MainExample2 {
 		ireos.setGammaMax(max);
 
 		/* Set the number of values that gamma will be discretized */
-		ireos.setnGamma(100);
+		ireos.setnGamma(35);
 
 		ireos.setGammas(discretization);
 

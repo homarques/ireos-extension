@@ -286,6 +286,7 @@ compileResults <- function(){
 		irs41 = cor(M[,4], M[,5], method="spearman")
 		irs4n = cor(M[,4], M[,6], method="spearman")
 		print("---------")
+		print(i)
 		print(cor(M[,1], M[,5], method="spearman"))
 		print(cor(M[,1], M[,6], method="spearman"))
 		print("---------")
@@ -324,8 +325,6 @@ compileResults <- function(){
 		dev.off()
 	}
 
-	plotBoxPlot(pts)
-
 	plot_algorithms <- function(pts){
 		pdf("algorithms.pdf")
 		datasets = pts[,1]
@@ -347,7 +346,7 @@ compileResults <- function(){
 		dev.off()
 	}
 
-	plot_corr <- function(pts){
+plot_corr <- function(pts){
 		pdf("correlation_sep1.pdf")
 		datasets = pts[,1]
 		np = pts[,c(1,6,8,10,12)]
@@ -377,49 +376,79 @@ compileResults <- function(){
                                 "#FDDBC7", "#FFFFFF", "#D1E5F0", "#92C5DE",
                                 "#4393C3", "#2166AC", "#053061"))(200)
 
-		p1 = qplot(x=Measure, y=Dataset, data=ntabelona, fill=Value, geom="tile")  + geom_text(aes(Measure, Dataset, label = Value), color = "black", size = 4)
+        avg.tab = cbind(Dataset = rep("Mean", 4), dcast(ntabelona, Measure ~ ., mean))
+		colnames(avg.tab)[3] = "Mean"
+		avg.tab[,3] = round(avg.tab[,3],3)
+		molten = merge(melt(ntabelona), melt(avg.tab), all.x = TRUE, all.y = TRUE)
+
+		p1 = qplot(x=Measure, y=Dataset, data=molten, fill=value, geom="tile")  + geom_text(aes(Measure, Dataset, label = value), color = "black", size = 4)
 
 		p1 = p1 + guides(fill=guide_legend(title="Spearman")) +theme_bw() + theme(panel.border = element_blank(), panel.grid.major = element_blank(),
 			panel.grid.minor = element_blank(), axis.line = element_blank(), axis.ticks = element_blank()) + xlab("") + ylab("") + scale_fill_gradientn(colours = col, limits=c(-1, 1), guide=FALSE) + guides(fill=FALSE)
+		p1 = p1 + facet_grid(variable ~ ., scales = "free_y", space = "free_y") + theme(strip.background = element_rect(colour = 'NA', fill = 'NA'), strip.text.y = element_text(colour = 'white'))
 		p1
 		dev.off()
 
 		pdf("correlation_sepn.pdf")
-		datasets = pts[,1]
-		np = pts[,c(1,7,9,11,13)]
-		ntabelona = data.frame()
-		k = 1
-		for(i in 1:nrow(np)){
-			ntabelona[k, 1] = np[i,1]
-			ntabelona[(k+1), 1] = np[i,1]
-			ntabelona[(k+2), 1] = np[i,1]
-			ntabelona[(k+3), 1] = np[i,1]
-			ntabelona[k, 2] = "AUC ROC"
-			ntabelona[(k+1), 2] = "AP"
-			ntabelona[(k+2), 2] = "Prec@n"
-			ntabelona[(k+3), 2] = "Max-F1"
-			ntabelona[k, 3] = np[i,2]
-			ntabelona[(k+1), 3] = np[i,3]
-			ntabelona[(k+2), 3] = np[i,4]
-			ntabelona[(k+3), 3] = np[i,5]
-			k = k+4
-		}
-		ntabelona[,1] = unlist(lapply(strsplit(ntabelona[,1], "_") , '[', 1))
-		ntabelona[,3] = round(as.numeric(ntabelona[,3]),3)
-		colnames(ntabelona) = c("Dataset","Measure","Value")
-		ntabelona$Dataset <- factor(ntabelona$Dataset)
- 		ntabelona$Dataset <- factor(ntabelona$Dataset, levels = rev(levels(ntabelona$Dataset)))
-		col <- colorRampPalette(c("#67001F", "#B2182B", "#D6604D", "#F4A582",
-                                "#FDDBC7", "#FFFFFF", "#D1E5F0", "#92C5DE",
-                                "#4393C3", "#2166AC", "#053061"))(200)
+			datasets = pts[,1]
+			np = pts[,c(1,7,9,11,13)]
+			ntabelona = data.frame()
+			k = 1
+			for(i in 1:nrow(np)){
+				ntabelona[k, 1] = np[i,1]
+				ntabelona[(k+1), 1] = np[i,1]
+				ntabelona[(k+2), 1] = np[i,1]
+				ntabelona[(k+3), 1] = np[i,1]
+				ntabelona[k, 2] = "AUC ROC"
+				ntabelona[(k+1), 2] = "AP"
+				ntabelona[(k+2), 2] = "Prec@n"
+				ntabelona[(k+3), 2] = "Max-F1"
+				ntabelona[k, 3] = np[i,2]
+				ntabelona[(k+1), 3] = np[i,3]
+				ntabelona[(k+2), 3] = np[i,4]
+				ntabelona[(k+3), 3] = np[i,5]
+				k = k+4
+			}
+			ntabelona[,1] = unlist(lapply(strsplit(ntabelona[,1], "_") , '[', 1))
+			ntabelona[,3] = round(as.numeric(ntabelona[,3]),3)
+			colnames(ntabelona) = c("Dataset","Measure","Value")
+			ntabelona$Dataset <- factor(ntabelona$Dataset)
+	 		ntabelona$Dataset <- factor(ntabelona$Dataset, levels = rev(levels(ntabelona$Dataset)))
+			col <- colorRampPalette(c("#67001F", "#B2182B", "#D6604D", "#F4A582",
+	                                "#FDDBC7", "#FFFFFF", "#D1E5F0", "#92C5DE",
+	                                "#4393C3", "#2166AC", "#053061"))(200)
 
-		p2 = qplot(x=Measure, y=Dataset, data=ntabelona, fill=Value, geom="tile")  + geom_text(aes(Measure, Dataset, label = Value), color = "black", size = 4)
+	        avg.tab = cbind(Dataset = rep("Mean", 4), dcast(ntabelona, Measure ~ ., mean))
+			colnames(avg.tab)[3] = "Mean"
+			avg.tab[,3] = round(avg.tab[,3],3)
+			molten = merge(melt(ntabelona), melt(avg.tab), all.x = TRUE, all.y = TRUE)
 
+		p2 = qplot(x=Measure, y=Dataset, data=molten, fill=value, geom="tile")  + geom_text(aes(Measure, Dataset, label = value), color = "black", size = 4)
 		p2 = p2 + guides(fill=guide_legend(title="Spearman")) +theme_bw() + theme(panel.border = element_blank(), panel.grid.major = element_blank(),
 			panel.grid.minor = element_blank(), axis.line = element_blank(), axis.ticks = element_blank()) + xlab("") + ylab("")+ scale_fill_gradientn(colours = col, limits=c(-1, 1)) + guides(fill=FALSE)
+		p2 = p2 + facet_grid(variable ~ ., scales = "free_y", space = "free_y") + theme(strip.background = element_rect(colour = 'NA', fill = 'NA'), strip.text.y = element_text(colour = 'white'))
 		p2
 		dev.off()
 	}
+
+solution_info <- function(pts){
+	datasets = pts[,1]
+	for(i in 1:length(datasets)){
+		infos = read.table(paste("/home/henrique/ireos_extension/Datasets/Real/solutions_info/", datasets[i], sep = ""), header = T, stringsAsFactors = F)
+		infos[,4] = as.numeric(infos[,4])
+		print(datasets[i])
+		print(infos[1,1])
+		print(round(min(infos[,4]),4))
+		print(round(max(infos[,4]),4))
+		print(round(mean(infos[,4]),4))
+		index = as.numeric(pts[i,2])
+		print(round(infos[index,4],4))
+		print(infos[index,2])
+		index = as.numeric(pts[i,3])
+		print(round(infos[index,4],4))
+		print(infos[index,2])
+	}
+}
 
 library(ggplot2)
 library(foreign)
@@ -445,27 +474,13 @@ for(i in datasets){
 	}
 }
 
-solution_info(pts){
-	datasets = pts[,1]
-	for(i in 1:length(datasets)){
-		infos = read.table(paste("/home/henrique/ireos_extension/Datasets/Real/solutions_info/", datasets[i], sep = ""), header = T, stringsAsFactors = F)
-		infos[,4] = as.numeric(infos[,4])
-		print(datasets[i])
-		print(infos[1,1])
-		print(round(min(infos[,4]),4))
-		print(round(max(infos[,4]),4))
-		print(round(mean(infos[,4]),4))
-		index = as.numeric(pts[i,2])
-		print(round(infos[index,4],4))
-		print(infos[index,2])
-		index = as.numeric(pts[i,3])
-		print(round(infos[index,4],4))
-		print(infos[index,2])
-	}
-
-}
 
 
+pts = compileResults()
+plot_corr(pts)
+plot_algorithms(pts)
+plotBoxPlot(pts)
+solution_info(pts)
 
 
 

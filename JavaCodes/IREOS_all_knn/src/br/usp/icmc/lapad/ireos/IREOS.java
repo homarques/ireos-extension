@@ -176,7 +176,10 @@ public class IREOS {
 			while (!outliers.isEmpty()) {
 				int listOutlierIndex = 0;
 				for (int i = 0; (i < number_of_threads) && (i < outliers.size()); i++) {
+
 					if (!threads[i].isAlive()) {
+						System.out.println(outliers.size());
+						System.out.println(gammaMax+"/"+threads[i].getP());
 						if (threads[i].getP() > 0.5) {
 							outliers.remove(new Integer(threads[i].getOutlierIndex()));
 							if (outliers.isEmpty())
