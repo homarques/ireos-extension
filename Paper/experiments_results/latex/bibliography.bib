@@ -1,0 +1,552 @@
+%%% ====================================================================
+%%%  BibTeX-file{
+%%%     author          = "Gerry Murray",
+%%%     version         = "1.2",
+%%%     date            = "2 April 2012",
+%%%     filename        = "acmsmall-sample-bibfile.bib",
+%%%     address         = "ACM, NY",
+%%%     email           = "murray at hq.acm.org",
+%%%     codetable       = "ISO/ASCII",
+%%%     keywords        = "ACM Reference Format, bibliography, citation, references",
+%%%     supported       = "yes",
+%%%     docstring       = "This BibTeX database file contains 'bibdata' entries
+%%%                        that 'match' the examples provided in the Specifications Document
+%%%                        AND, also, 'legacy'-type bibs. It should assist authors in 
+%%%                        choosing the 'correct' at-bibtype and necessary bib-fields
+%%%                        so as to obtain the appropriate ACM Reference Format output. 
+%%%			   It also contains many 'Standard Abbreviations'. "
+%%%  }
+%%% ====================================================================
+
+% Journals
+
+% First the Full Name is given, then the abbreviation used in the AMS Math
+% Reviews, with an indication if it could not be found there.
+% Note the 2nd overwrites the 1st, so swap them if you want the full name.
+
+ %{AMS}
+ @String{AMSTrans = "American Mathematical Society Translations" }
+ @String{AMSTrans = "Amer. Math. Soc. Transl." }
+ @String{BullAMS = "Bulletin of the American Mathematical Society" }
+ @String{BullAMS = "Bull. Amer. Math. Soc." }
+ @String{ProcAMS = "Proceedings of the American Mathematical Society" }
+ @String{ProcAMS = "Proc. Amer. Math. Soc." }
+ @String{TransAMS = "Transactions of the American Mathematical Society" }
+ @String{TransAMS = "Trans. Amer. Math. Soc." }
+
+ %ACM
+ @String{CACM = "Communications of the {ACM}" }
+ @String{CACM = "Commun. {ACM}" }
+ @String{CompServ = "Comput. Surveys" }
+ @String{JACM = "J. ACM" }
+ @String{ACMMathSoft = "{ACM} Transactions on Mathematical Software" }
+ @String{ACMMathSoft = "{ACM} Trans. Math. Software" }
+ @String{SIGNUM = "{ACM} {SIGNUM} Newsletter" }
+ @String{SIGNUM = "{ACM} {SIGNUM} Newslett." }
+
+ @String{AmerSocio = "American Journal of Sociology" }
+ @String{AmerStatAssoc = "Journal of the American Statistical Association" }
+ @String{AmerStatAssoc = "J. Amer. Statist. Assoc." }
+ @String{ApplMathComp = "Applied Mathematics and Computation" }
+ @String{ApplMathComp = "Appl. Math. Comput." }
+ @String{AmerMathMonthly = "American Mathematical Monthly" }
+ @String{AmerMathMonthly = "Amer. Math. Monthly" }
+ @String{BIT = "{BIT}" }
+ @String{BritStatPsych = "British Journal of Mathematical and Statistical
+          Psychology" }
+ @String{BritStatPsych = "Brit. J. Math. Statist. Psych." }
+ @String{CanMathBull = "Canadian Mathematical Bulletin" }
+ @String{CanMathBull = "Canad. Math. Bull." }
+ @String{CompApplMath = "Journal of Computational and Applied Mathematics" }
+ @String{CompApplMath = "J. Comput. Appl. Math." }
+ @String{CompPhys = "Journal of Computational Physics" }
+ @String{CompPhys = "J. Comput. Phys." }
+ @String{CompStruct = "Computers and Structures" }
+ @String{CompStruct = "Comput. \& Structures" }
+ @String{CompJour = "The Computer Journal" }
+ @String{CompJour = "Comput. J." }
+ @String{CompSysSci = "Journal of Computer and System Sciences" }
+ @String{CompSysSci = "J. Comput. System Sci." }
+ @String{Computing = "Computing" }
+ @String{ContempMath = "Contemporary Mathematics" }
+ @String{ContempMath = "Contemp. Math." }
+ @String{Crelle = "Crelle's Journal" }
+ @String{GiornaleMath = "Giornale di Mathematiche" }
+ @String{GiornaleMath = "Giorn. Mat." } % didn't find in AMS MR., ibid.
+
+ %IEEE
+ @String{Computer = "{IEEE} Computer" }
+ @String{IEEETransComp = "{IEEE} Transactions on Computers" }
+ @String{IEEETransComp = "{IEEE} Trans. Comput." }
+ @String{IEEETransAC = "{IEEE} Transactions on Automatic Control" }
+ @String{IEEETransAC = "{IEEE} Trans. Automat. Control" }
+ @String{IEEESpec = "{IEEE} Spectrum" } % didn't find in AMS MR
+ @String{ProcIEEE = "Proceedings of the {IEEE}" }
+ @String{ProcIEEE = "Proc. {IEEE}" } % didn't find in AMS MR
+ @String{IEEETransAeroElec = "{IEEE} Transactions on Aerospace and Electronic
+     Systems" }
+ @String{IEEETransAeroElec = "{IEEE} Trans. Aerospace Electron. Systems" }
+
+ @String{IMANumerAna = "{IMA} Journal of Numerical Analysis" }
+ @String{IMANumerAna = "{IMA} J. Numer. Anal." }
+ @String{InfProcLet = "Information Processing Letters" }
+ @String{InfProcLet = "Inform. Process. Lett." }
+ @String{InstMathApp = "Journal of the Institute of Mathematics and
+     its Applications" }
+ @String{InstMathApp = "J. Inst. Math. Appl." }
+ @String{IntControl = "International Journal of Control" }
+ @String{IntControl = "Internat. J. Control" }
+ @String{IntNumerEng = "International Journal for Numerical Methods in
+     Engineering" }
+ @String{IntNumerEng = "Internat. J. Numer. Methods Engrg." }
+ @String{IntSuper = "International Journal of Supercomputing Applications" }
+ @String{IntSuper = "Internat. J. Supercomputing Applic." } % didn't find
+%% in AMS MR
+ @String{Kibernetika = "Kibernetika" }
+ @String{JResNatBurStand = "Journal of Research of the National Bureau
+     of Standards" }
+ @String{JResNatBurStand = "J. Res. Nat. Bur. Standards" }
+ @String{LinAlgApp = "Linear Algebra and its Applications" }
+ @String{LinAlgApp = "Linear Algebra Appl." }
+ @String{MathAnaAppl = "Journal of Mathematical Analysis and Applications" }
+ @String{MathAnaAppl = "J. Math. Anal. Appl." }
+ @String{MathAnnalen = "Mathematische Annalen" }
+ @String{MathAnnalen = "Math. Ann." }
+ @String{MathPhys = "Journal of Mathematical Physics" }
+ @String{MathPhys = "J. Math. Phys." }
+ @String{MathComp = "Mathematics of Computation" }
+ @String{MathComp = "Math. Comp." }
+ @String{MathScand = "Mathematica Scandinavica" }
+ @String{MathScand = "Math. Scand." }
+ @String{TablesAidsComp = "Mathematical Tables and Other Aids to Computation" }
+ @String{TablesAidsComp = "Math. Tables Aids Comput." }
+ @String{NumerMath = "Numerische Mathematik" }
+ @String{NumerMath = "Numer. Math." }
+ @String{PacificMath = "Pacific Journal of Mathematics" }
+ @String{PacificMath = "Pacific J. Math." }
+ @String{ParDistComp = "Journal of Parallel and Distributed Computing" }
+ @String{ParDistComp = "J. Parallel and Distrib. Comput." } % didn't find
+%% in AMS MR
+ @String{ParComputing = "Parallel Computing" }
+ @String{ParComputing = "Parallel Comput." }
+ @String{PhilMag = "Philosophical Magazine" }
+ @String{PhilMag = "Philos. Mag." }
+ @String{ProcNAS = "Proceedings of the National Academy of Sciences
+                    of the USA" }
+ @String{ProcNAS = "Proc. Nat. Acad. Sci. U. S. A." }
+ @String{Psychometrika = "Psychometrika" }
+ @String{QuartMath = "Quarterly Journal of Mathematics, Oxford, Series (2)" }
+ @String{QuartMath = "Quart. J. Math. Oxford Ser. (2)" }
+ @String{QuartApplMath = "Quarterly of Applied Mathematics" }
+ @String{QuartApplMath = "Quart. Appl. Math." }
+ @String{RevueInstStat = "Review of the International Statisical Institute" }
+ @String{RevueInstStat = "Rev. Inst. Internat. Statist." }
+
+ %SIAM
+ @String{JSIAM = "Journal of the Society for Industrial and Applied
+     Mathematics" }
+ @String{JSIAM = "J. Soc. Indust. Appl. Math." }
+ @String{JSIAMB = "Journal of the Society for Industrial and Applied
+     Mathematics, Series B, Numerical Analysis" }
+ @String{JSIAMB = "J. Soc. Indust. Appl. Math. Ser. B Numer. Anal." }
+ @String{SIAMAlgMeth = "{SIAM} Journal on Algebraic and Discrete Methods" }
+ @String{SIAMAlgMeth = "{SIAM} J. Algebraic Discrete Methods" }
+ @String{SIAMAppMath = "{SIAM} Journal on Applied Mathematics" }
+ @String{SIAMAppMath = "{SIAM} J. Appl. Math." }
+ @String{SIAMComp = "{SIAM} Journal on Computing" }
+ @String{SIAMComp = "{SIAM} J. Comput." }
+ @String{SIAMMatrix = "{SIAM} Journal on Matrix Analysis and Applications" }
+ @String{SIAMMatrix = "{SIAM} J. Matrix Anal. Appl." }
+ @String{SIAMNumAnal = "{SIAM} Journal on Numerical Analysis" }
+ @String{SIAMNumAnal = "{SIAM} J. Numer. Anal." }
+ @String{SIAMReview = "{SIAM} Review" }
+ @String{SIAMReview = "{SIAM} Rev." }
+ @String{SIAMSciStat = "{SIAM} Journal on Scientific and Statistical
+     Computing" }
+ @String{SIAMSciStat = "{SIAM} J. Sci. Statist. Comput." }
+
+ @String{SoftPracExp = "Software Practice and Experience" }
+ @String{SoftPracExp = "Software Prac. Experience" } % didn't find in AMS MR
+ @String{StatScience = "Statistical Science" }
+ @String{StatScience = "Statist. Sci." }
+ @String{Techno = "Technometrics" }
+ @String{USSRCompMathPhys = "{USSR} Computational Mathematics and Mathematical
+     Physics" }
+ @String{USSRCompMathPhys = "{U. S. S. R.} Comput. Math. and Math. Phys." }
+ @String{VLSICompSys = "Journal of {VLSI} and Computer Systems" }
+ @String{VLSICompSys = "J. {VLSI} Comput. Syst." }
+ @String{ZAngewMathMech = "Zeitschrift fur Angewandte Mathematik und
+     Mechanik" }
+ @String{ZAngewMathMech = "Z. Angew. Math. Mech." }
+ @String{ZAngewMathPhys = "Zeitschrift fur Angewandte Mathematik und Physik" }
+ @String{ZAngewMathPhys = "Z. Angew. Math. Phys." }
+
+% Publishers % ================================================= |
+
+ @String{Academic = "Academic Press" }
+ @String{ACMPress = "{ACM} Press" }
+ @String{AdamHilger = "Adam Hilger" }
+ @String{AddisonWesley = "Addison-Wesley" }
+ @String{AllynBacon = "Allyn and Bacon" }
+ @String{AMS = "American Mathematical Society" }
+ @String{Birkhauser = "Birkha{\"u}ser" }
+ @String{CambridgePress = "Cambridge University Press" }
+ @String{Chelsea = "Chelsea" }
+ @String{ClaredonPress = "Claredon Press" }
+ @String{DoverPub = "Dover Publications" }
+ @String{Eyolles = "Eyolles" }
+ @String{HoltRinehartWinston = "Holt, Rinehart and Winston" }
+ @String{Interscience = "Interscience" }
+ @String{JohnsHopkinsPress = "The Johns Hopkins University Press" }
+ @String{JohnWileySons = "John Wiley and Sons" }
+ @String{Macmillan = "Macmillan" }
+ @String{MathWorks = "The Math Works Inc." }
+ @String{McGrawHill = "McGraw-Hill" }
+ @String{NatBurStd = "National Bureau of Standards" }
+ @String{NorthHolland = "North-Holland" }
+ @String{OxfordPress = "Oxford University Press" }  %address Oxford or London?
+ @String{PergamonPress = "Pergamon Press" }
+ @String{PlenumPress = "Plenum Press" }
+ @String{PrenticeHall = "Prentice-Hall" }
+ @String{SIAMPub = "{SIAM} Publications" }
+ @String{Springer = "Springer-Verlag" }
+ @String{TexasPress = "University of Texas Press" }
+ @String{VanNostrand = "Van Nostrand" }
+ @String{WHFreeman = "W. H. Freeman and Co." }
+
+%Entries
+
+@inproceedings{kriegel2011,
+author = {Hans-Peter Kriegel and Peer Kr\"{o}ger and Erich Schubert and Arthur Zimek},
+title = {Interpreting and Unifying Outlier Scores},
+booktitle = {Proceedings of the 2011 SIAM International Conference on Data Mining},
+series = {SDM '11},
+pages = {13-24},
+year = {2011},
+doi = {10.1137/1.9781611972818.2},
+address = {Arizona, USA}
+}
+
+@inproceedings{marques2015,
+ author = {Marques, Henrique O. and Campello, Ricardo J. G. B. and Zimek, Arthur and Sander, J\"{o}rg},
+ title = {On the Internal Evaluation of Unsupervised Outlier Detection},
+ booktitle = {Proceedings of the 27th International Conference on Scientific and Statistical Database Management},
+ series = {SSDBM '15},
+ pages = {7:1--7:12},
+ year = {2015},
+ doi = {10.1145/2791347.2791352},
+ address = {San Diego, USA}
+}
+
+@inproceedings{schubert2012,
+author = {Erich Schubert and Remigius Wojdanowski and Arthur Zimek and Hans-Peter Kriegel},
+title = {On Evaluation of Outlier Rankings and Outlier Scores},
+booktitle = {Proceedings of the 2012 SIAM International Conference on Data Mining},
+series = {SDM '12},
+pages = {1047-1058},
+year = {2012},
+doi = {10.1137/1.9781611972825.90},
+address = {California, USA}
+}
+
+@inproceedings{zimek2013,
+ author = {Zimek, Arthur and Gaudet, Matthew and Campello, Ricardo J. G. B. and Sander, J\"{o}rg},
+ title = {Subsampling for Efficient and Effective Unsupervised Outlier Detection Ensembles},
+ booktitle = {Proceedings of the 19th ACM SIGKDD International Conference on Knowledge Discovery and Data Mining},
+ series = {KDD '13},
+ year = {2013},
+ pages = {428--436},
+ doi = {10.1145/2487575.2487676},
+ address = {New York, USA}
+ }
+
+@inproceedings{ramaswamy2000,
+ author = {Ramaswamy, Sridhar and Rastogi, Rajeev and Shim, Kyuseok},
+ title = {Efficient Algorithms for Mining Outliers from Large Data Sets},
+ booktitle = {Proceedings of the 2000 ACM SIGMOD International Conference on Management of Data},
+ series = {SIGMOD '00},
+ year = {2000},
+ pages = {427--438},
+ doi = {10.1145/342009.335437},
+ address = {New York, NY, USA}
+}
+
+@inproceedings{hautamaki2004, 
+author={V. Hautamaki and I. Karkkainen and P. Franti}, 
+title={Outlier detection using k-nearest neighbour graph}, 
+booktitle={Proceedings of the 17th International Conference on Pattern Recognition}, 
+series = {ICPR '04},
+year={2004}, 
+pages={430-433}, 
+doi={10.1109/ICPR.2004.1334558}, 
+location = {Cambridge, UK}
+}
+
+@inproceedings{breunig2000,
+ author = {Breunig, Markus M. and Kriegel, Hans-Peter and Ng, Raymond T. and Sander, J\"{o}rg},
+ title = {LOF: Identifying Density-based Local Outliers},
+ booktitle = {Proceedings of the 2000 ACM SIGMOD International Conference on Management of Data},
+ series = {SIGMOD '00},
+ year = {2000},
+ pages = {93--104},
+ doi = {10.1145/342009.335388},
+ address = {New York, NY, USA}
+}
+
+@inproceedings{kriegel2009,
+ author = {Kriegel, Hans-Peter and Kr\"{o}ger, Peer and Schubert, Erich and Zimek, Arthur},
+ title = {LoOP: Local Outlier Probabilities},
+ booktitle = {Proceedings of the 18th ACM Conference on Information and Knowledge Management},
+ series = {CIKM '09},
+ year = {2009},
+ pages = {1649--1652},
+ doi = {10.1145/1645953.1646195},
+ location = {Hong Kong, China}
+}
+
+@inproceedings{kriegel2008,
+ author = {Kriegel, Hans-Peter and S hubert, Matthias and Zimek, Arthur},
+ title = {Angle-based Outlier Detection in High-dimensional Data},
+ booktitle = {Proceedings of the 14th ACM SIGKDD International Conference on Knowledge Discovery and Data Mining},
+ series = {KDD '08},
+ year = {2008},
+ pages = {444--452},
+ doi = {10.1145/1401890.1401946},
+ location = {Las Vegas, NV, USA}
+} 
+
+@inproceedings{schubert2014b,
+author = {Erich Schubert and Arthur Zimek and Hans-Peter Kriegel},
+title = {Generalized Outlier Detection with Flexible Kernel Density Estimates},
+booktitle = {Proceedings of the 2014 SIAM International Conference on Data Mining},
+series = {SDM '14},
+year = {2014},
+pages = {542-550},
+doi = {10.1137/1.9781611973440.63},
+location = {Philadelphia, PA, USA}
+}
+
+@inproceedings{panda2006,
+ author = {Panda, Navneet and Chang, Edward Y. and Wu, Gang},
+ title = {Concept Boundary Detection for Speeding Up SVMs},
+ booktitle = {Proceedings of the 23rd International Conference on Machine Learning},
+ series = {ICML '06},
+ year = {2006},
+ location = {Pittsburgh, PA, USA},
+ pages = {681--688},
+ doi = {10.1145/1143844.1143930}
+}
+
+@inproceedings{lee2001,
+author = {Yuh-Jye Lee and Olvi L. Mangasarian},
+title = {RSVM: Reduced Support Vector Machines},
+booktitle = {Proceedings of the 2001 SIAM International Conference on Data Mining},
+series = {SDM '01},
+year = {2001},
+location = {Chicago, IL, USA},
+pages = {1-17},
+doi = {10.1137/1.9781611972719.13},
+}
+
+
+@inproceedings{angiulli2002,
+author="Angiulli, Fabrizio and Pizzuti, Clara", 
+title="Fast Outlier Detection in High Dimensional Spaces",
+bookTitle="Proceedings of the 6th European Conference on Principles of Data Mining and Knowledge Discovery",
+series = {PKDD '02},
+year="2002",
+location = {Helsinki, Finland},
+pages="15--27",
+doi="10.1007/3-540-45681-3_2"
+}
+
+@inproceedings{zhang2009,
+author="Zhang, Ke and Hutter, Marcus and Jin, Huidong",
+title="A New Local Distance-Based Outlier Detection Approach for Scattered Real-World Data",
+bookTitle="Proceedings of the 13th Pacific-Asia Conference on Advances in Knowledge Discovery and Data Mining",
+series = {PAKDD '09},
+year="2009",
+location = {Bangkok, Thailand},
+pages="813--822",
+doi="10.1007/978-3-642-01307-2_84",
+}
+
+@inproceedings{latecki2007,
+author="Latecki, Longin Jan and Lazarevic, Aleksandar and Pokrajac, Dragoljub",
+title="Outlier Detection with Kernel Density Functions",
+bookTitle="Proceedings of the 5th International Conference on Machine Learning and Data Mining in Pattern Recognition",
+series = {MLDM '07},
+year="2007",
+location = {Leipzig, Germany},
+pages="61--75",
+doi="10.1007/978-3-540-73499-4_6",
+}
+
+@inproceedings{jin2006,
+author="Jin, Wen and Tung, Anthony K. H. and Han, Jiawei and Wang, Wei",
+title="Ranking Outliers Using Symmetric Neighborhood Relationship",
+bookTitle="Proceedings of the 10th Pacific-Asia Conference on Advances in Knowledge Discovery and Data Mining",
+series = {PAKDD '06},
+year="2006",
+location = {Singapore},
+pages="577--593",
+doi="10.1007/11731139_68",
+}
+
+@inproceedings{tang2002,
+author="Tang, Jian and Chen, Zhixiang and Fu, Ada Wai-chee and Cheung, David W.",
+title="Enhancing Effectiveness of Outlier Detections for Low Density Patterns",
+bookTitle="Proceedings of the 6th Pacific-Asia Conference on Advances in Knowledge Discovery and Data Mining",
+series = {PAKDD '02},
+year="2002",
+location = {Taipei, Taiwan},
+pages="535--548",
+doi="10.1007/3-540-47887-6_53",
+}
+
+@inproceedings{schubert2015,
+author="Schubert, Erich and Zimek, Arthur and Kriegel, Hans-Peter", 
+title="Fast and Scalable Outlier Detection with Approximate Nearest Neighbor Ensembles",
+bookTitle="Proceedings of the 20th International Conference on Database Systems for Advanced Applications",
+series = {DASFAA '15},
+location = {Hanoi, Vietnam},
+year="2015",
+pages="19--36",
+doi="10.1007/978-3-319-18123-3_2",
+}
+
+@inproceedings{gionis1999,
+ author = {Gionis, Aristides and Indyk, Piotr and Motwani, Rajeev},
+ title = {Similarity Search in High Dimensions via Hashing},
+ booktitle = {Proceedings of the 25th International Conference on Very Large Data Bases},
+ series = {VLDB '99},
+ year = {1999},
+ pages = {518--529},
+ address = {Edinburgh, UK},
+} 
+
+@book{hastie2013,
+  Title                    = {The Elements of Statistical Learning: Data Mining, Inference, and Prediction},
+  Author                   = {Hastie, Trevor and Tibshirani, Robert and Friedman, Jerome},
+  Publisher                = {Springer-Verlag New York, Inc.},
+  Year                     = {2013},
+  Edition                  = {2nd}
+
+}
+
+@book{bishop2006,
+  Title                    = {Pattern Recognition and Machine Learning},
+  Author                   = {Bishop, Christopher M.},
+  Publisher                = {Springer},
+  Year                     = {2006}
+}
+
+@book{scholkopf2001,
+ author = {Scholkopf, Bernhard and Smola, Alexander J.},
+ title = {Learning with Kernels: Support Vector Machines, Regularization, Optimization, and Beyond},
+ year = {2001},
+ publisher = {MIT Press}
+}
+
+@book{burden2016,
+ author = {Richard L. Burden and J. Douglas Faires and Annette M. Burden},
+ title = {Numerical Analysis},
+ year = {2016},
+ publisher = {Cengage learning}
+}
+
+@techreport{osuna1997,
+ author = {Osuna, Edgar and Freund, Robert and Girosi, Federico},
+ title = {Support Vector Machines: Training and Applications},
+ year = {1997},
+ source = {http://www.ncstrl.org:8900/ncstrl/servlet/search?formname=detail\&id=oai%3Ancstrlh%3Amitai%3AMIT-AILab%2F%2FAIM-1602},
+ publisher = {Massachusetts Institute of Technology},
+ address = {Cambridge, MA, USA},
+}
+
+@techreport{platt1998,
+author = {Platt, John},
+title = {Sequential Minimal Optimization:  A Fast Algorithm for Training Support Vector Machines},
+year = {1998},
+source = {https://www.microsoft.com/en-us/research/publication/sequential-minimal-optimization-a-fast-algorithm-for-training-support-vector-machines/},
+publisher = {Microsoft Research Lab},
+address = {Redmond, WA, USA},
+}
+
+@article{zimek2013b,
+ author = {Zimek, Arthur and Campello, Ricardo J.G.B. and Sander, J\"{o}rg},
+ title = {Ensembles for Unsupervised Outlier Detection: Challenges and Research Questions a Position Paper},
+ journal = {SIGKDD Explor. Newsl.},
+ volume = {15},
+ number = {1},
+ year = {2013},
+ pages = {11--22},
+ doi = {10.1145/2594473.2594476},
+ publisher = {ACM},
+ address = {New York, NY, USA},
+} 
+
+@article{campos2016,
+author = {Campos, Guilherme O. and Zimek, Arthur and Sander, J{\"o}rg and Campello, Ricardo J. G. B. and Micenkov{\'a}, Barbora and Schubert, Erich and Assent, Ira and Houle, Michael E.},
+title = {On the Evaluation of Unsupervised Outlier Detection: Measures, Datasets, and an Empirical Study},
+journal = {Data Mining and Knowledge Discovery},
+volume = {30},
+number = {4},
+year = {2016},
+pages = {891--927},
+doi= {10.1007/s10618-015-0444-8},
+publisher = {Springer},
+address = {New York, NY, USA}
+}
+
+@article{angiulli2005, 
+author={Angiulli, Fabrizio and Pizzuti, Clara}, 
+title={Outlier Mining in Large High-Dimensional Data Sets},
+journal={IEEE Transactions on Knowledge and Data Engineering}, 
+volume={17}, 
+number={2}, 
+year={2005}, 
+pages={203-215}, 
+doi={10.1109/TKDE.2005.31}, 
+publisher = {IEEE},
+address = {New York, NY, USA}
+}
+
+@article{schubert2014,
+author="Schubert, Erich and Zimek, Arthur and Kriegel, Hans-Peter",
+title="Local Outlier Detection Reconsidered: A Generalized View on Locality with Applications to Spatial, Video, and Network Outlier Detection",
+journal="Data Mining and Knowledge Discovery",
+volume="28",
+number="1",
+year="2014",
+pages="190--237",
+doi={10.1007/s10618-012-0300-z},
+publisher = {Springer},
+address = {New York, NY, USA}
+}
+
+@article{keerthi2005,
+ author = {Keerthi, S. S. and Duan, K. B. and Shevade, S. K. and Poo, A. N.},
+ title = {A Fast Dual Algorithm for Kernel Logistic Regression},
+ journal = {Machine Learning},
+ volume = {61},
+ number = {1-3},
+ year = {2005},
+ pages = {151--165},
+ doi = {10.1007/s10994-005-0768-5},
+ publisher = {Kluwer Academic Publishers},
+ address = {Hingham, MA, USA}
+ } 
+
+@article{kuncir1962,
+ author = {Kuncir, Guy F.},
+ title = {Algorithm 103: Simpson's Rule Integrator},
+ journal = {Commun. ACM},
+ volume = {5},
+ number = {6},
+ year = {1962},
+ pages = {347},
+ doi = {10.1145/367766.368179},
+ publisher = {ACM},
+ address = {New York, NY, USA}
+} 

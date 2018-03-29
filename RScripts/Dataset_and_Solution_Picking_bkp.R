@@ -1,0 +1,769 @@
+#Generate the difficulty plots and the difficulty measures of the datasets
+runDifficultyPlot <- function(path, dataset){
+	bylabel  = read.table(paste(path, "/results_NOGLOSH/", dataset, "/data", sep = "" ))
+	measures = read.table(paste(path, "/evaluation_NOGLOSH/", dataset, "/data", sep = "" ), header = T, sep = ",")
+
+	abbrev = list(KNN = "A", KNNW = "B", LOF = "C", SimplifiedLOF = "D", LoOP = "E", LDOF = "F", ODIN = "G", KDEOS = "H", COF = "I",
+				  FastABOD = "J", LDF = "K", INFLO = "L")
+	maxBins = 10
+	n = which(bylabel[1,] == 1) - 1
+	bestAUCs = c()
+	bins = data.frame(matrix(rep(0, length(abbrev)*length(n)), nrow = length(abbrev), ncol = length(n)))
+	bins2 = bins
+	bins3 = bins
+	binX = bins
+	bin = bins
+	
+	for(i in 1:length(abbrev)){
+		algorithm_id = which(measures[, 2] == names(abbrev[i]))
+		bestAUC = ((measures[algorithm_id,])[order(measures[algorithm_id, 4], measures[algorithm_id, 5], decreasing=T), ])[1, c(2, 3)]
+		dig  = floor(max(as.numeric(unlist(strsplit( as.character(bylabel[-1, 1]),"-"))[c(F,T)]))/100) + 1
+		algo = paste(bestAUC$Algorithm, "-" ,formatC(bestAUC$k, digits = dig, flag = "0"), sep = "")
+
+		scorings = bylabel[which(bylabel[, 1] == algo), -1]
+		if(bestAUC$Algorithm == "DWOF" || bestAUC$Algorithm == "FastABOD" || bestAUC$Algorithm == "ODIN"){
+			ranking = sort.list(sort.list(t(scorings), dec = F))
+		}else{
+			ranking = sort.list(sort.list(t(scorings), dec = T))
+		}
+
+		bins[i,]  = ceiling(ranking[n] / length(n))
+		
+		bin[i,] = ranking[n] / length(n)
+		maxx = mean((1+length(ranking)-length(n)):length(ranking) / length(n))
+		EX = ((length(ranking) + 1)/2)/length(n)
+		binX[i,] = (bin[i,] - EX)/(maxx-EX)
+
+		max       = ceiling(length(ranking) / length(n))
+		E         = ceiling(((length(ranking)+1)/2) / length(n))
+		bins2[i,] = bins[i,] / max
+		bins3[i,] = (bins[i,] - E) / (max - E)
+	}
+
+	bins[bins > maxBins] = maxBins
+	bins = bins[, order(colMeans(bins))]
+	difficulty = mean(colMeans(bins))
+	overMaxBins = mean(colMeans(bins2))
+	adjBins = mean(colMeans(bins3))
+	diversity = apply(bins, 2, sd)
+	diversity = sqrt(sum(diversity^2)/length(diversity))
+	adjX = mean(colMeans(binX))
+	
+	rocAUC     = c(min(measures[,  4]), max(measures[,  4]))
+	avgPrec    = c(min(measures[,  5]), max(measures[,  5]))
+	prec       = c(min(measures[,  6]), max(measures[,  6]))
+	max_F1     = c(min(measures[,  7]), max(measures[,  7]))
+	adjRocAUC  = c(min(measures[,  8]), max(measures[,  8]))
+	adjAvgPrec = c(min(measures[,  9]), max(measures[,  9]))
+	adjPrec    = c(min(measures[, 10]), max(measures[, 10]))
+	adjF1      = c(min(measures[, 11]), max(measures[, 11]))
+
+	ret = list()
+	ret$measures = c(dataset, rocAUC, avgPrec, prec, max_F1, adjRocAUC, adjAvgPrec, adjPrec, adjF1, difficulty, diversity, overMaxBins, adjBins, adjX)
+	ret$bins = bins
+
+	ret
+}
+
+runSummarizeByDataset <- function(path, dataset, cores){
+	abbrev = list(KNN = "A", KNNW = "B", LOF = "C", SimplifiedLOF = "D", LoOP = "E", LDOF = "F", ODIN = "G", KDEOS = "H", COF = "I",
+				  FastABOD = "J", LDF = "K", INFLO = "L") #, DWOF = "M", LIC = "N", VOV = "O", Intrinsic = "P", IDOS = "Q", KDLOF = "R")
+	maxBins = 10
+	dir.create(paste(path, "/difficultyPlots/", sep = ""))
+	datasets = list.files(paste(path, "/data_arff/", sep = ""))
+	datasets = sub('\\.arff$', '', datasets)
+
+	datasets = datasets[grepl(dataset, datasets)]
+	
+	sum_up = mclapply(datasets, function(dataset){
+		print(dataset)
+		runDifficultyPlot(path, dataset);
+	}, mc.cores = cores)
+
+	pdf(paste(path, "/difficultyPlots/", dataset, ".pdf", sep = ""))
+	par(oma = c(0, 0, 0, 3), mar = c(4, 1, 1, 2), xpd = NA, mgp = c(2, 0, 0))
+	for (data in sum_up){
+		image(x = 1:length(abbrev), z = as.matrix(data$bins), axes = T, yaxt = 'n', xaxt = 'n', col = tim.colors(maxBins), zlim = c(1, maxBins), cex.lab = 1.2, xlab = data$measures[1])
+		axis(1, at = 1:length(abbrev), labels = abbrev, tick = F, mgp = c(0, 0.5, 0), cex.axis = 1.1)
+		image.plot(z = as.matrix(data$bins), legend.only = TRUE, col = tim.colors(maxBins), zlim = c(1, maxBins), legend.mar = 0, legend.cex = .5)
+	}
+	dev.off()
+	
+	data = data.frame(matrix(unlist(lapply(sum_up, '[', 1)), nrow = length(sum_up), byrow = T))
+	colnames(data) = c("Dataset", "rocAUC", "rocAUC", "avgPrec", "avgPrec", "prec", "prec", "max_F1", "max_F1", "adjRocAUC", "adjRocAUC",
+					   "adjAvgPrec", "adjAvgPrec", "adjPrec", "adjPrec", "adjF1", "adjF1", "difficulty", "diversity", "overMaxBins", "adjBins", "adjX")
+	write.table(data, file = paste(path,"/difficultyPlots/", dataset, ".txt", sep = ""), row.names = F)
+}
+
+runBestDatasetsBy <- function(path, dataset, index, perc){
+	literature = c("ALOI", "Glass", "Ionosphere", "KDDCup99", "Lymphography", "PenDigits", "Shuttle", "Waveform", "WBC", "WDBC", "WPBC")
+	semantic = c("Annthyroid", "Arrhythmia", "Cardiotocography", "HeartDisease", "Hepatitis", "InternetAds", "PageBlocks", "Parkinson", "Pima", "SpamBase", "Stamps", "Wilt")
+	
+	data = read.table(paste(path, "/difficultyPlots/", dataset, ".txt", sep = ""), header = T, stringsAsFactors = F)
+	if(dataset %in% semantic){
+		if(!is.null(perc)){
+			percs = as.numeric(unique(unlist(lapply(strsplit(data[,1], "_") , '[', 3))))
+			percs = percs[!is.na(percs)] #downsampling availables
+			perc = percs[which(abs(percs-perc) == min(abs(percs-perc)))] #closest one
+			data = data[grepl(paste("_0", perc, sep=""), data[,1]),]
+		}
+	}
+
+	data = data[order(data[, index]), c(1, index)]
+	print(data[1, ])
+	data[1,1]
+}
+
+runPickSolutions <- function(pathin, pathout, dataset, nos = 10, index = 4){
+	#reading external measures and defining the steps of ROC AUC to be used according to the min and max values of it
+	measures = read.table(paste(path, "/evaluation_NOGLOSH/", dataset, "/data", sep = "" ), header = T, sep = ",")
+	
+	sol = c()
+	min = min(measures[, index])
+	sol = rbind(sol, measures[order(measures[,index])[1],])
+	while(nrow(sol) < nos){
+		step = (max(measures[,index]) - min) / (nos - nrow(sol))
+		x = seq(min, max(measures[,index]), step)
+		measures = measures[which(measures[,index] >= x[2] ),]
+		aux = measures[which(abs(measures[,index]-x[2]) == min(abs(measures[,index]-x[2]))),]
+		temp = as.data.frame(table(sol[,2]))
+		temp = temp[which(temp[,1] %in% aux[,2]),]
+		temp = temp[order(temp[,2]),1][1]
+		aux = aux[which(aux[,2] == temp),]
+		sol = rbind(sol, aux[nrow(aux),])
+		min = measures[which(abs(measures[,index]-x[2]) == min(abs(measures[,index]-x[2])))[1],index]
+	}
+
+	#saving the information (external measures, algorithms, k, etc) about the solution that will be used
+	write.table(sol, paste(pathout, "/solutions_info/", dataset, sep=""), row.names= F)
+}
+
+runRankingScoring <- function(pathin, pathout, dataset){
+	dir.create(paste(pathout, "/solutions/" , sep = ""))
+	dir.create(paste(pathout, "/scorings/"  , sep = ""))
+	dir.create(paste(pathout, "/solutions/" , dataset , sep = ""))
+	dir.create(paste(pathout, "/scorings/"  , dataset , sep = ""))
+	sol = read.table(paste(pathout, "/solutions_info/", dataset, sep = ""), header = T)
+	
+	bylabel  = read.table(paste(pathin, "/results_NOGLOSH/", dataset, "/data", sep = "" ))
+
+	for(i in 1:nrow(sol))
+	{
+		if(max(as.numeric(unlist(strsplit( as.character(bylabel[-1,1]),"-"))[c(F,T)])) < 100){
+			if(sol[i,]$k < 10){
+				algo = paste(sol[i,]$Algorithm, "-0", sol[i,]$k, sep = "" )
+			}else if(sol[i,]$k < 100){
+				algo = paste(sol[i,]$Algorithm, "-", sol[i,]$k,  sep = ""  )
+			}
+		}else{
+			if(sol[i,]$k < 10){
+				algo = paste(sol[i,]$Algorithm, "-00", sol[i,]$k, sep = "" )
+			}else if(sol[i,]$k < 100){
+				algo = paste(sol[i,]$Algorithm, "-0", sol[i,]$k,  sep = ""  )
+			}else if(sol[i,]$k == 100){
+				algo = paste(sol[i,]$Algorithm, "-", sol[i,]$k,   sep = ""  )
+			}
+		}
+
+		s = bylabel[which(bylabel[,1]==algo),-1]
+		if(sol[i,]$Algorithm == "DWOF" || sol[i,]$Algorithm == "FastABOD" || sol[i,]$Algorithm == "ODIN")
+			ranking = sort.list(sort.list(t(s), dec = F))
+		else
+			ranking = sort.list(sort.list(t(s), dec = T))
+		write.table(ranking, paste(pathout, "/solutions/", dataset, "/", i , sep = ""), col.names = F, row.names = F)
+		write.table(t(s), paste(pathout, "/scorings/", dataset, "/", i , sep = ""), col.names = F, row.names = F)
+	}
+}
+
+runScoringNormalization <- function(path, dataset){
+	infos = read.table(paste(path, "/solutions_info/", dataset, sep = ""), header = T)
+	for( i in 1:nrow(infos)){
+		filein = paste(path, "/scorings/", dataset, "/", i, sep = "")
+		fileout = paste(path, "/weight/normalized_scores_median/", dataset, "/", i, sep = "")
+		dir.create(paste(path, "/weight/normalized_scores_median/", dataset, sep = ""))
+		algorithm = infos[i,2]
+		k = infos[i,3]
+		data = read.table(filein)
+		min = min(data)
+		max = max(data[is.finite(t(data)),])
+		size = nrow(data)
+		system(paste("java -jar /home/henrique/ireos_extension/JavaCodes/scoring_normalization_median.jar ", filein, fileout, algorithm, min, max, k, size))
+	}
+}
+
+runPickDatasets <- function(pathin, pathout, dataset){
+	dir.create(paste(pathout, "/data/", sep = ""))
+	data = read.arff(paste(pathin, "/data_arff/", dataset ,".arff", sep=""))
+	data = data[,-which(colnames(data) == "id" |  colnames(data) == "outlier")]
+	write.table(data, paste(pathout, "/data/", dataset , sep=""), col.names = F, row.names= F)
+
+	dir.create(paste(pathout, "/solutions_info/", sep=""))
+	runPickSolutions(pathin, pathout, dataset)
+
+	dir.create(paste(pathout, "/solutions/", sep = ""))
+	dir.create(paste(pathout, "/scorings/", sep = ""))
+	runRankingScoring(pathin, pathout, dataset)
+
+	dir.create(paste(pathout, "/weight/" , sep = ""))
+	dir.create(paste(pathout, "/weight/normalized_scores/", sep = ""))
+	dir.create(paste(pathout, "/weight/normalized_scores/", dataset , sep = ""))
+
+	runScoringNormalization(pathout, dataset)
+}
+
+compileResults <- function(){
+	path = "/home/henrique/ireos_extension/Datasets/Real/"
+	files = list.files(paste(path, "/results/cln", sep =""))
+	pdf("correlations.pdf")
+	
+	best = c()
+	
+	for(i in files){
+		f = read.table(paste(path, "/results/cl1/", i, "/1", sep=""))
+		x = unique(f[,2])
+		pts = c()
+		for (j in seq(1, nrow(f), 100)){
+			y = f[j:(j+99),3]
+			value = 0
+			for(l in 2:length(y)){
+				value = value + (x[l] - x[(l - 1)]) * (y[l - 1] + y[l])
+			}
+			value = value/2
+			value = value/max(x)
+			pts = c(pts, value)
+		}
+
+		ir1 = c()
+		irn = c()
+		irs11 = c()
+		irs1n = c()
+		irs21 = c()
+		irs2n = c()
+		irs31 = c()
+		irs3n = c()
+		irs41 = c()
+		irs4n = c()
+		sol = list.files(paste(path, "/solutions/", i , sep="/"))
+		sol = sort(as.numeric(sol))
+		for(j in sol){
+			w = read.table(paste(path, "/weight/normalized_scores/", i, j, sep = "/"), header = FALSE, sep = "\n", stringsAsFactors = FALSE)
+			ireos = sum((w/sum(w)) * pts)		
+			ir1 = c(ir1, ireos)
+
+			fn = read.table(paste(path, "/results/cln/", i, "/", j, sep=""))
+			x = unique(fn[,2])
+			ptsn = c()
+			for (j in seq(1, nrow(fn), 100)){
+				y = fn[j:(j+99),3]
+				value = 0
+				for(l in 2:length(y)){
+					value = value + (x[l] - x[(l - 1)]) * (y[l - 1] + y[l])
+				}
+				value = value/2
+				value = value/max(x)
+				ptsn = c(ptsn, value)
+			}
+
+			ireosn = sum((w/sum(w)) * ptsn)		
+			irn = c(irn, ireosn)
+		}
+
+		measures = read.table(paste(path, "/solutions_info/", i, sep  = ""), header = T )
+		M = apply(cbind(measures[,4:7], ir1, irn), 2, as.numeric)
+		colnames(M)[5] = "ext-IREOS cl=1"
+		colnames(M)[6] = "ext-IREOS cl=n"
+		colnames(M)[2] = "AP"
+		colnames(M)[1] = "ROC AUC"
+		colnames(M)[3] = "prec@n"
+		colnames(M)[4] = "Max-F1"
+		corrplot(cor(M, method="spearman"), method = "color", addCoef.col="black", title=i, mar = c(0,0,1,0))
+		irs11 = cor(M[,1], M[,5], method="spearman")
+		irs1n = cor(M[,1], M[,6], method="spearman")
+		irs21 = cor(M[,2], M[,5], method="spearman")
+		irs2n = cor(M[,2], M[,6], method="spearman")
+		irs31 = cor(M[,3], M[,5], method="spearman")
+		irs3n = cor(M[,3], M[,6], method="spearman")
+		irs41 = cor(M[,4], M[,5], method="spearman")
+		irs4n = cor(M[,4], M[,6], method="spearman")
+		print("---------")
+		print(i)
+		print(cor(M[,1], M[,5], method="spearman"))
+		print(cor(M[,1], M[,6], method="spearman"))
+		print("---------")
+		best = rbind(best, cbind(i, sort.list(ir1, dec=T)[1], sort.list(irn, dec=T)[1], M[sort.list(ir1, dec=T)[1],1], M[sort.list(irn, dec=T)[1],1], irs11, irs1n,irs21, irs2n,irs31, irs3n,irs41, irs4n))
+		#best = c(best, sort.list(ir1, dec=T)[1])
+		#box = c(box, M[sort.list(ir, dec=T)[1],1])
+	}
+	dev.off()
+	best
+}
+
+quads <- function(){
+
+	data = read.table("ireos_extension/Datasets/Synthetic/synth-batch1/gaussian20dim_4clusters_nr1.csv", stringsAsFactors=F)
+	a = data$V24
+	b = as.numeric(unlist(strsplit(data$V22,"="))[c(F,T)])
+
+
+	#s1 = which(a=="outlier")[order[b[which(a=="outlier")]]]
+	s1 = which(a=="outlier")[sort.list(b[which(a=="outlier")],dec=T)]
+	s2 =sample(which(a=="inlier"))
+	#s2 = which(a=="inlier")[sort.list(b[which(a=="inlier")],dec=F)]
+	
+	
+	for(i in 1:length(s1)){
+		aux = b[s1[i]]
+		b[s1[i]] = b[s2[i]]
+		b[s2[i]] = aux
+		roc_obj <- roc(a, b)
+		print(paste(i, ": ", auc(roc_obj)))
+	}
+
+	
+
+
+	seps = read.table("/home/henrique/Documents/journal/acmart-master/data/mahalanobis")
+	x = 99
+	i = seq(1,nrow(seps),x+1)
+	j = c(101, 102, 99)
+	png("fig1.png")
+	plot(seps[i[j[1]]:(i[j[1]]+x), 2], seps[i[j[1]]:(i[j[1]]+x), 3], type = "l", lty = 1, ylim=c(0,1), xlab=expression(gamma), ylab = "p")
+	quads = data.frame(c(0.0, 2.34375, 2.8125, 0.17578125, 3.28125, 3.75, 0.234375, 0.29296875, 4.6875, 5.625, 0.3515625, 0.41015625, 6.5625, 7.5, 0.46875, 0.5859375, 0.703125, 0.8203125, 0.9375, 0.05859375,
+	 1.171875, 1.40625, 1.640625, 1.875, 0.1171875), c(0.009823037561456222, 0.9999999858679975, 0.9999999995847093, 0.1355550618912452, 0.9999999999863918, 0.9999999999995159, 0.2630701740157997,
+	 0.4371604929831627, 0.9999999999999991, 1.0, 0.61932073576076, 0.7671428249907184, 1.0, 1.0, 0.8662657898855984, 0.9587589807665158, 0.9871797271556164, 0.9958402569569677, 0.9985968558458097, 
+	 0.025640567183921527, 0.9998243801843315, 0.999975871476845, 0.9999964634181214, 0.9999994596590323, 0.06194765429816496))
+	points(quads[,1], rep(0, nrow(quads)), pch = 16)
+	dev.off()
+
+	png("fig2.png")
+	plot(seps[i[j[2]]:(i[j[2]]+x), 2], seps[i[j[2]]:(i[j[2]]+x), 3], type = "l", lty = 1, ylim=c(0,1), xlab=expression(gamma), ylab = "p")
+	quads = data.frame(c(0.0,4.6875,5.625,2.8125,6.5625,3.75,7.5,1.875,0.9375), c(0.009823037561456248,0.9118089709245312,0.9632164008903611,0.5990681665011288,0.9850526906715562,0.8003049960860138,
+		0.9940054463203893,0.3353520313067879,0.11593653220846942))
+	points(quads[,1], rep(0, nrow(quads)), pch = 16)
+	dev.off()
+	
+	png("fig3.png")
+	plot(seps[i[j[3]]:(i[j[3]]+x), 2], seps[i[j[3]]:(i[j[3]]+x), 3], type = "l", lty = 1, ylim=c(0,1), xlab=expression(gamma), ylab = "p")
+	quads = data.frame( c(0.0, 5.625, 3.75, 7.5, 1.875), c(0.00982303756145617, 0.34278755018869256, 0.21719223670703286, 0.461085374176673, 0.09581037360605606))
+	points(quads[,1], rep(0, nrow(quads)), pch = 16)
+	dev.off()
+
+	path = "/home/henrique/ireos_extension/Datasets/Real/"
+	files = list.files(paste(path, "/results/cl1/", sep =""))	
+	ms = c()
+	for(i in files){
+		f = read.table(paste(path, "/results/cl1/", i, "/1", sep=""))
+		x = unique(f[,2])
+		pts = c()
+		for (j in seq(1, nrow(f), 100)){
+			y = f[j:(j+99),3]
+			value = 0
+			for(l in 2:length(y)){
+				value = value + (x[l] - x[(l - 1)]) * (y[l - 1] + y[l])
+			}
+			value = value/2
+			value = value/max(x)
+			pts = c(pts, value)
+		}
+
+		f2 = read.table(paste(path, "/results/cln/", i, "/1", sep=""))
+		x = unique(f2[,2])
+		pts2 = c()
+		for (j in seq(1, nrow(f), 35)){
+			y = f2[j:(j+34),3]
+			value = 0
+			for(l in 2:length(y)){
+				value = value + (x[l] - x[(l - 1)]) * (y[l - 1] + y[l])
+			}
+			value = value/2
+			value = value/max(x)
+			pts2 = c(pts2, value)
+		}
+
+		fn = read.table(paste(path, "/results/quads/", i, "/1", sep=""))
+		xs = c(which(fn[,2]==0), (nrow(fn)+1))
+		ptsn = c()
+		for (j in 1:(length(xs)-1)){
+			x1 = fn[xs[j]:(xs[j+1]-1),2]
+			x = x1[order(x1)]
+			y = fn[xs[j]:(xs[j+1]-1),3]
+			y = y[order(x1)]
+			value = 0
+			l = seq(1, length(x)-2, 2)
+			for(j in 1:length(l)){
+				value = value + ((x[l[j]+2] - x[l[j]])/6) * (y[l[j]] + 4*y[l[j]+1] + y[l[j]+2])
+			}
+			ptsn = c(ptsn, value/max(x))
+		}
+		ir1 = c()
+		irn = c()
+		sol = list.files(paste(path, "/solutions/", i , sep="/"))
+		sol = sort(as.numeric(sol))
+		for(j in sol){
+			w = read.table(paste(path, "/weight/normalized_scores_median/", i, j, sep = "/"), header = FALSE, sep = "\n", stringsAsFactors = FALSE)
+			ireos = sum((w/sum(w)) * pts)		
+			ir1 = c(ir1, ireos)
+			ireosn = sum((w/sum(w)) * ptsn)		
+			irn = c(irn, ireosn)
+		}
+		#cat(i, "\n")
+		#print("Exact")
+		#print(ir1)
+		#print("Approximate")
+		#print(irn)
+		#print(nrow(fn))
+		#print(nrow(f))
+		#print(nrow(fn)/nrow(f)*100)
+		#ms = c(ms, nrow(fn)/nrow(f)*100)
+		#m = c(m, nrow(fn)/nrow(f))
+		#cat("Normal\t\tClassifiers\tQuads\t\tClassifiers\n")
+		#for(j in 1:length(ir1))
+		#	cat(ir1[j],"\t",nrow(f),"\t\t", irn[j], "\t", nrow(fn),"\n" )
+		v = 0
+		for(j in sol){
+			aux = 0
+			w = read.table(paste(path, "/weight/normalized_scores_median/", i, j, sep = "/"), header = FALSE, sep = "\n", stringsAsFactors = FALSE)
+			m1 = xs[which(w > 0)+1]
+			m  = xs[which(w > 0)]
+			#print(sum(w>0))
+		#	print(j-1)
+			for(j in 1:length(m)){
+				v = v + length(m[j]:m1[j])
+				aux = aux + length(m[j]:m1[j])
+			}
+		#	print(aux)
+		}
+		print(i)
+		print(v)
+		print(100*v/(nrow(f)*10))
+		#ms = c(ms, 100*v/(nrow(f)*10))
+
+		v = 0
+		for(j in 1:10){
+			w = read.table(paste(path, "/results/stopping/", i, j, sep = "/"), header = FALSE, sep = "\n", stringsAsFactors = FALSE)
+			v = v + nrow(w)
+		}
+
+		print(i)
+		print(v)
+		print(100*v/(nrow(f)*10))
+		ms = c(ms, 100*v/(nrow(f)*10))
+	}
+}
+
+plotBoxPlot <- function(pts){
+	pdf("boxplot.pdf")
+	par(mar=par("mar")+c(2,0,0,0))
+	#datasets = list.files("/home/henrique/ireos_extension/Datasets/Real/solutions_info/", full.names = T)
+	datasets = pts[,1]
+	box = c()
+	for(i in datasets){
+		infos = read.table(paste("/home/henrique/ireos_extension/Datasets/Real/solutions_info/", i, sep = ""), header = T, stringsAsFactors = F)
+		box = rbind(box, cbind(infos[1,1], infos[,4]))
+	}
+	#datasets = unlist(strsplit(datasets, "/"))[seq(9,length(datasets)*9,9)]
+	datasets = unlist(lapply(strsplit(datasets, "_") , '[', 1))
+	box = as.data.frame(box, stringsAsFactors = F)
+	colnames(box)[1] = "datasets"
+	colnames(box)[2] = "ROCAUC"
+	box$ROCAUC = as.numeric(box$ROCAUC)
+	boxplot(ROCAUC ~ datasets, data = box, xaxt="n", ylab = "ROC AUC", ylim = c(0,1))
+	 #text(seq(0.1, (length(datasets)+0.5), length.out = length(datasets)), par("usr")[3]-0.1, datasets, xpd=TRUE, srt=45)
+	 text(1:length(datasets), par("usr")[3]-0.15, datasets, xpd=TRUE, srt=90)
+	points(1:length(datasets), as.numeric(pts[,4]), pch = 0, cex = 1.5, col = 2)
+	points(1:length(datasets), as.numeric(pts[,5]), pch = 4, cex = 1.5, col = 2)
+	labNames = "Solution selected by ext-IREOS "
+	legend('bottomright',legend= c(as.expression(bquote(.(labNames) ~ (m[cl] ~"="~1))), as.expression(bquote(.(labNames) ~ (m[cl] ~"="~n)))), pch = c(0,4),bty ="n", pt.cex = c(1.5,1.5), col = c(2,2))
+	dev.off()
+}
+
+plot_algorithms <- function(pts){
+	pdf("algorithms.pdf")
+	datasets = pts[,1]
+	tabelona = c()
+	for(i in 1:length(datasets)){
+		infos = read.table(paste("/home/henrique/ireos_extension/Datasets/Real/solutions_info/", datasets[i], sep = ""), header = T, stringsAsFactors = F)
+		tabelona = rbind(tabelona, cbind(1:10, infos[,c(1,2)]))
+	}
+	tabelona[,2] = unlist(lapply(strsplit(tabelona[,2], "_") , '[', 1))
+	colnames(tabelona)[1] = c("seq")
+	tabelona$Algorithm = as.factor(tabelona$Algorithm)
+	tabelona$Name <- factor(tabelona$Name)
+ 	tabelona$Name <- factor(tabelona$Name, levels = rev(levels(tabelona$Name)))
+	p = ggplot(data = tabelona, aes(seq, Name))+geom_tile(aes(fill=factor(Algorithm)), colour = "white") + scale_fill_manual(values= c("#a6cee3","#1f78b4","#b2df8a",
+		"#33a02c","#fb9a99","#e31a1c","#fdbf6f","#ff7f00","#cab2d6","#6a3d9a","#ffff99","#b15928")) + xlab("") + ylab("")
+	p <- p + guides(fill=guide_legend(title="Algorithms")) +theme_bw() + theme(panel.border = element_blank(), panel.grid.major = element_blank(),
+		panel.grid.minor = element_blank(), axis.line = element_blank(), axis.text.x = element_blank(), axis.ticks = element_blank())
+	p
+	dev.off()
+}
+
+plot_corr <- function(pts){
+		pdf("correlation_sep1.pdf")
+		datasets = pts[,1]
+		np = pts[,c(1,6,8,10,12)]
+		ntabelona = data.frame()
+		k = 1
+		for(i in 1:nrow(np)){
+			ntabelona[k, 1] = np[i,1]
+			ntabelona[(k+1), 1] = np[i,1]
+			ntabelona[(k+2), 1] = np[i,1]
+			ntabelona[(k+3), 1] = np[i,1]
+			ntabelona[k, 2] = "AUC ROC"
+			ntabelona[(k+1), 2] = "AP"
+			ntabelona[(k+2), 2] = "Prec@n"
+			ntabelona[(k+3), 2] = "Max-F1"
+			ntabelona[k, 3] = np[i,2]
+			ntabelona[(k+1), 3] = np[i,3]
+			ntabelona[(k+2), 3] = np[i,4]
+			ntabelona[(k+3), 3] = np[i,5]
+			k = k+4
+		}
+		ntabelona[,1] = unlist(lapply(strsplit(ntabelona[,1], "_") , '[', 1))
+		ntabelona[,3] = round(as.numeric(ntabelona[,3]),3)
+		colnames(ntabelona) = c("Dataset","Measure","Value")
+		ntabelona$Dataset <- factor(ntabelona$Dataset)
+ 		ntabelona$Dataset <- factor(ntabelona$Dataset, levels = rev(levels(ntabelona$Dataset)))
+		col <- colorRampPalette(c("#67001F", "#B2182B", "#D6604D", "#F4A582",
+                                "#FDDBC7", "#FFFFFF", "#D1E5F0", "#92C5DE",
+                                "#4393C3", "#2166AC", "#053061"))(200)
+
+        avg.tab = cbind(Dataset = rep("Mean", 4), dcast(ntabelona, Measure ~ ., mean))
+		colnames(avg.tab)[3] = "Mean"
+		avg.tab[,3] = round(avg.tab[,3],3)
+		molten = merge(melt(ntabelona), melt(avg.tab), all.x = TRUE, all.y = TRUE)
+
+		p1 = qplot(x=Measure, y=Dataset, data=molten, fill=value, geom="tile")  + geom_text(aes(Measure, Dataset, label = value), color = "black", size = 4)
+
+		p1 = p1 + guides(fill=guide_legend(title="Spearman")) +theme_bw() + theme(panel.border = element_blank(), panel.grid.major = element_blank(),
+			panel.grid.minor = element_blank(), axis.line = element_blank(), axis.ticks = element_blank()) + xlab("") + ylab("") + scale_fill_gradientn(colours = col, limits=c(-1, 1), guide=FALSE) + guides(fill=FALSE)
+		p1 = p1 + facet_grid(variable ~ ., scales = "free_y", space = "free_y") + theme(strip.background = element_rect(colour = 'NA', fill = 'NA'), strip.text.y = element_text(colour = 'white'))
+		p1
+		dev.off()
+
+		pdf("correlation_sepn.pdf")
+			datasets = pts[,1]
+			np = pts[,c(1,7,9,11,13)]
+			ntabelona = data.frame()
+			k = 1
+			for(i in 1:nrow(np)){
+				ntabelona[k, 1] = np[i,1]
+				ntabelona[(k+1), 1] = np[i,1]
+				ntabelona[(k+2), 1] = np[i,1]
+				ntabelona[(k+3), 1] = np[i,1]
+				ntabelona[k, 2] = "AUC ROC"
+				ntabelona[(k+1), 2] = "AP"
+				ntabelona[(k+2), 2] = "Prec@n"
+				ntabelona[(k+3), 2] = "Max-F1"
+				ntabelona[k, 3] = np[i,2]
+				ntabelona[(k+1), 3] = np[i,3]
+				ntabelona[(k+2), 3] = np[i,4]
+				ntabelona[(k+3), 3] = np[i,5]
+				k = k+4
+			}
+			ntabelona[,1] = unlist(lapply(strsplit(ntabelona[,1], "_") , '[', 1))
+			ntabelona[,3] = round(as.numeric(ntabelona[,3]),3)
+			colnames(ntabelona) = c("Dataset","Measure","Value")
+			ntabelona$Dataset <- factor(ntabelona$Dataset)
+	 		ntabelona$Dataset <- factor(ntabelona$Dataset, levels = rev(levels(ntabelona$Dataset)))
+			col <- colorRampPalette(c("#67001F", "#B2182B", "#D6604D", "#F4A582",
+	                                "#FDDBC7", "#FFFFFF", "#D1E5F0", "#92C5DE",
+	                                "#4393C3", "#2166AC", "#053061"))(200)
+
+	        avg.tab = cbind(Dataset = rep("Mean", 4), dcast(ntabelona, Measure ~ ., mean))
+			colnames(avg.tab)[3] = "Mean"
+			avg.tab[,3] = round(avg.tab[,3],3)
+			molten = merge(melt(ntabelona), melt(avg.tab), all.x = TRUE, all.y = TRUE)
+
+		p2 = qplot(x=Measure, y=Dataset, data=molten, fill=value, geom="tile")  + geom_text(aes(Measure, Dataset, label = value), color = "black", size = 4)
+		p2 = p2 + guides(fill=guide_legend(title="Spearman")) +theme_bw() + theme(panel.border = element_blank(), panel.grid.major = element_blank(),
+			panel.grid.minor = element_blank(), axis.line = element_blank(), axis.ticks = element_blank()) + xlab("") + ylab("")+ scale_fill_gradientn(colours = col, limits=c(-1, 1)) + guides(fill=FALSE)
+		p2 = p2 + facet_grid(variable ~ ., scales = "free_y", space = "free_y") + theme(strip.background = element_rect(colour = 'NA', fill = 'NA'), strip.text.y = element_text(colour = 'white'))
+		p2
+		dev.off()
+	}
+
+solution_info <- function(pts){
+	datasets = pts[,1]
+	for(i in 1:length(datasets)){
+		infos = read.table(paste("/home/henrique/ireos_extension/Datasets/Real/solutions_info/", datasets[i], sep = ""), header = T, stringsAsFactors = F)
+		infos[,4] = as.numeric(infos[,4])
+		print(datasets[i])
+		print(infos[1,1])
+		print(round(min(infos[,4]),4))
+		print(round(max(infos[,4]),4))
+		print(round(mean(infos[,4]),4))
+		index = as.numeric(pts[i,2])
+		print(round(infos[index,4],4))
+		print(infos[index,2])
+		index = as.numeric(pts[i,3])
+		print(round(infos[index,4],4))
+		print(infos[index,2])
+	}
+}
+
+data2csv <-function(){
+	files = list.files("/home/henrique/FullData/data_arff")
+	for(i in files){ 
+		data = read.arff(paste("/home/henrique/FullData/data_arff/", i, sep=""))
+		print(length(which(colnames(data) == "id" |  colnames(data) == "outlier" |  colnames(data) == "Outlier" )))
+		data = data[,-which(colnames(data) == "id" |  colnames(data) == "outlier" |  colnames(data) == "Outlier" )]
+		i = sub('\\.arff$', '', i)
+
+		write.table(data, paste("/home/henrique/FullData/csv/", i, sep=""), col.names=F, row.names=F, sep=",")
+	}
+
+}
+
+runGLOSH <- function(){
+	files = list.files("/home/henrique/FullData/data_arff")
+	perc = 5
+	semantic = c("Annthyroid", "Arrhythmia", "Cardiotocography", "HeartDisease", "Hepatitis", "InternetAds", "PageBlocks", "Parkinson", "Pima", "SpamBase", "Stamps", "Wilt")
+
+	for(i in files){
+		i = sub('\\.arff$', '', i)
+		temp = unique(unlist(lapply(strsplit(i, "_") , '[', 1)))
+		if(temp %in% semantic){
+			percs = unlist(lapply(strsplit(i, "_") , '[', 3))
+			if(percs == "norm"){
+				percs = as.numeric(unlist(lapply(strsplit(i, "_") , '[', 4)))
+			}else{
+				percs = as.numeric(percs)
+			}
+			if(percs == 5){
+				data = read.arff(paste("/home/henrique/FullData/data_arff/", i ,".arff", sep=""))
+				data = data[,-which(colnames(data) == "id" |  colnames(data) == "outlier")]
+				write.table(data, paste("/home/henrique/FullData/csv/", i, sep=""), col.names=F, row.names=F, sep=",")
+
+			}
+		}else{
+			data = read.arff(paste("/home/henrique/FullData/data_arff/", i ,".arff", sep=""))
+			data = data[,-which(colnames(data) == "id" |  colnames(data) == "outlier")]
+			write.table(data, paste("/home/henrique/FullData/csv/", i, sep=""), col.names=F, row.names=F, sep=",")
+		}
+
+	}
+	
+
+
+	files = list.files("/home/henrique/FullData/csv")
+	for(i in files){
+		system(paste("cp -R /home/henrique/FullData/results_NOGLOSH/", i, " /home/henrique/FullData/results/", sep = ""))
+		for(j in 2:100){
+			system(paste("java -jar /home/henrique/HDBSCANStar_FRAMEWORK_JAVA_Code/HDBSCANStar.jar file=/home/henrique/FullData/csv/", i, 
+				" minPts=", j, " minClSize=", j, sep=""))
+			system(paste("rm /home/henrique/FullData/csv/", i, "_hierarchy.csv", sep = ""))
+			system(paste("rm /home/henrique/FullData/csv/", i, "_partition.csv", sep = ""))
+			system(paste("rm /home/henrique/FullData/csv/", i, "_tree.csv", sep = ""))
+			data = read.table(paste("/home/henrique/FullData/csv/", i, "_outlier_scores.csv", sep=""), sep=",")
+			data = data[order(data[,2]),1]
+			if(j < 10){
+				line = paste("GLOSH-00", j, sep = "")
+			}else if(j < 100){
+				line = paste("GLOSH-0", j, sep = "")
+			}else{
+				line = paste("GLOSH-", j, sep = "")
+			}
+			line = c(line, data)
+			write.table(t(line), file=paste("/home/henrique/FullData/results/", i, "/data", sep=""), col.names = F, row.names = F, append = T, quote = F)
+		}
+		system(paste("rm /home/henrique/FullData/csv/", i, "_outlier_scores.csv", sep = ""))
+	}
+}
+
+knn <-function(){
+	files = list.files("/home/henrique/ireos_extension/Datasets/_Real/data/")
+	for(i in files){
+		data = read.table(paste("/home/henrique/ireos_extension/Datasets/_Real/data/", i, sep=""))
+		knn = get.knn(data, min((nrow(data)-1), 2500))
+		write.table((knn$nn.index -1), paste("/home/henrique/ireos_extension/Datasets/Real/KNN/", i, sep=""), col.names=F, row.names=F)
+	}
+
+	sp = read.table("ilx_sp.txt")
+	j = 1
+	o = 1
+	#ds = 4819
+	a = c()
+	ds = 102
+	t = c()
+	for(i in seq(1, nrow(sp), ds)){
+		t2 = t
+		t = sp[i:(i+ds-1),]
+		#print(t)
+		t = t[-o]
+		#print(t)
+		index = which(cumsum(sort(abs(t), dec=T)/sum(abs(t)))> 0.99)[1]
+		#print("a:")
+		#print(sort(sort.list(abs(t), dec=T)[1:index]))
+		
+		b = a
+		a = sort.list(abs(t), dec=T)[1:index]
+		print(j)
+		print((a))
+		print(t[a])
+
+		if(j > 1){
+			if(length(a) > length(b)){
+		#		print(j)
+		#		print(a)
+		#		print(b)
+			}
+			if(length(setdiff(a,b)) > 1){
+				#print(j)
+				#print(o)
+				#print("setdiff:")
+				#print(setdiff(a,b))
+				#print(b)
+				#print(a)
+			}
+		}
+		
+		if(j == 10){
+			o = o + 1
+			j = 1
+		#	if(o == 12)
+		#		break;
+		}else{
+			j = j + 1
+		}
+	}
+
+}
+
+library(FNN)
+library(ggplot2)
+library(foreign)
+library(fields)
+library(parallel)
+library(reshape2)
+library(corrplot)
+source("RL/Utils.R")
+cores = 1
+path = "/home/henrique/Synthetic/"
+files = list.files(paste(path, "data_arff/", sep = ""))
+files = sub('\\.arff$', '', files)
+
+datasets = unique(unlist(lapply(strsplit(files, "_") , '[', 1)))
+computed = list.files(paste(path, "/difficultyPlots/", sep = ""))
+computed = sub('\\.txt$', '', computed)
+computed = sub('\\.pdf$', '', computed)
+computed = unique(computed)
+
+for(i in datasets){
+	if(!(i %in% computed)){
+		runSummarizeByDataset(path, i, 1)
+		#runPickDatasets(path, "/home/henrique/ireos_extension/Datasets/Real", runBestDatasetsBy(path, i, 18, 5))
+	}
+}
+
+
+
+pts = compileResults()
+plot_corr(pts)
+plot_algorithms(pts)
+plotBoxPlot(pts)
+solution_info(pts)
+
+
+
+

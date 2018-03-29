@@ -5,6 +5,7 @@ import java.io.BufferedWriter;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.math.BigDecimal;
 import java.util.Arrays;
 
 import de.lmu.ifi.dbs.elki.data.NumberVector;
@@ -26,19 +27,27 @@ import de.lmu.ifi.dbs.elki.result.outlier.OutlierResult;
 import de.lmu.ifi.dbs.elki.result.outlier.OutlierScoreMeta;
 import de.lmu.ifi.dbs.elki.result.outlier.ProbabilisticOutlierScore;
 import de.lmu.ifi.dbs.elki.result.outlier.QuotientOutlierScoreMeta;
-import de.lmu.ifi.dbs.elki.utilities.scaling.outlier.OutlierGammaScaling;
-import de.lmu.ifi.dbs.elki.utilities.scaling.outlier.OutlierLinearScaling;
 import de.lmu.ifi.dbs.elki.utilities.scaling.outlier.OutlierScalingFunction;
 import de.lmu.ifi.dbs.elki.utilities.scaling.outlier.StandardDeviationScaling;
 
 public class main {
 
-	public static void main(String[] args) throws IOException {
+	public static void main(String[] argsx) throws IOException {
+		String[] args = {"/home/henrique/ireos_extension/Datasets/Real/scorings/Glass_withoutdupl_norm/2",
+						"/home/henrique/ireos_extension/Datasets/Real/weight/normalized_scores_median/Glass_withoutdupl_norm/2",
+						"GLOSH","-1.752058e+308",
+						"-1.353665e+308", "80", "214"};
 		String filein = args[0];
 		String fileout = args[1];
 		String algorithm = args[2];
-		double min = Double.parseDouble(args[3]);
-		double max = Double.POSITIVE_INFINITY;
+		double min;
+		try {
+			min = Double.parseDouble(args[3]);
+		} catch (Exception e) {
+			System.out.println(args[3] + " replaced for: " + Double.NEGATIVE_INFINITY);
+			min = Double.NEGATIVE_INFINITY;
+		}
+		double max;
 		try {
 			max = Double.parseDouble(args[4]);
 		} catch (Exception e) {
@@ -89,6 +98,9 @@ public class main {
 		case "COF":
 			scoreMeta = new QuotientOutlierScoreMeta(min, max, 0.0, Double.POSITIVE_INFINITY, 1.0);
 			break;
+		case "GLOSH":
+			scoreMeta = new ProbabilisticOutlierScore(min, max);
+			break;
 		default:
 			System.err.println("Not find!");
 			break;
@@ -99,6 +111,7 @@ public class main {
 		String line;
 		double data[][] = new double[size][1];
 		double s[] = new double[size];
+		double m[] = new double[size];
 		int i = 0;
 		
 		DatabaseConnection dbc = new ArrayAdapterDatabaseConnection(data);
@@ -114,32 +127,51 @@ public class main {
 				if (algorithm.equals("ODIN") || algorithm.equals("FastABOD")) {
 					data[i][0] = -Math.log(Double.parseDouble(line));
 					s[i] = -Math.log(Double.parseDouble(line));
+					m[i] = -Math.log(Double.parseDouble(line));
 				} else {
 					data[i][0] = Double.parseDouble(line);
 					s[i] = Double.parseDouble(line);
+					m[i] = Double.parseDouble(line);
 				}
 			} catch (Exception e) {
 				System.out.println(e);
-				System.out.println(line + " replaced for: " + Double.POSITIVE_INFINITY);
-				data[i][0] = Double.POSITIVE_INFINITY;
+				if(line.equals("Inf")) {
+					System.out.println(line + " replaced for: " + Double.POSITIVE_INFINITY);
+					data[i][0] = Double.POSITIVE_INFINITY;
+					s[i] = Double.POSITIVE_INFINITY;
+					m[i] = Double.POSITIVE_INFINITY;
+				}else {
+					System.out.println(line + " replaced for: " + Double.NEGATIVE_INFINITY);
+					data[i][0] = Double.NEGATIVE_INFINITY;
+					s[i] = Double.NEGATIVE_INFINITY;
+					m[i] = Double.NEGATIVE_INFINITY;
+				}
+				
 			}
 			scores.putDouble(iditer, s[i]);
 			iditer.advance();
 			i++;
 		}
 		reader.close();
-		//Arrays.sort(s);
+		Arrays.sort(m);
 
-		//double median = .5 * (s[size >> 1] + s[(size + 1) >> 1]);
+		double median = .5 * m[size >> 1] + .5 * m[(size + 1) >> 1];
+		if(median == Double.NEGATIVE_INFINITY) {
+			median = min;
+		}else if(median == Double.POSITIVE_INFINITY) {
+			median = max;
+		}
 
 		DoubleRelation scoreResult = new MaterializedDoubleRelation(algorithm, algorithm, scores, rel.getDBIDs());
 		OutlierResult result = new OutlierResult(scoreMeta, scoreResult);
 
 		OutlierScalingFunction dist;
-		if (algorithm.equals("LoOP") || algorithm.equals("KDEOS")) {
+		if (algorithm.equals("LoOP") || algorithm.equals("KDEOS") || algorithm.equals("GLOSH")) {
 			dist = new OutlierLinearScaling(0.0, 1.0, true, false);
+			((OutlierLinearScaling)dist).setMedian(median);
+			((OutlierLinearScaling)dist).setUsemedian(true);
 		} else {
-			dist = new StandardDeviationScaling();
+			dist = new StandardDeviationScaling(median, 1);
 		}
 			
 		/*if (algorithm.equals("LDF") || algorithm.equals("COF")) {

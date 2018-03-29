@@ -1,12 +1,19 @@
 package br.usp.icmc.lapad.ireos;
 
+import java.io.BufferedReader;
 import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileReader;
 import java.io.FileWriter;
+import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import com.rapidminer.operator.learner.functions.kernel.jmysvm.examples.SVMExamples;
 import com.rapidminer.parameter.value.ParameterValueGrid;
+
+import br.usp.icmc.lapad.MainExample2;
 
 public class IREOS {
 	public static final int C = 100;
@@ -22,44 +29,39 @@ public class IREOS {
 	private double[] gammas;
 	/* Dataset */
 	private SVMExamples dataset;
-	private int strategy;
+	static IREOSExample[] evaluatedExamples;
 
 	/*
 	 * List of solutions to be evaluated, only the labels: 1 (outlier) and -1
 	 * (inlier)
 	 */
-	private int[] solution;
 	private float[] weights;
 
 	/* Number of threads to be used */
-	private int number_of_threads = 50; // Runtime.getRuntime().availableProcessors()
+	private int number_of_threads = 5; // Runtime.getRuntime().availableProcessors()
 
 	/** Constructor receive the dataset and list of solutions to be evaluated */
-	public IREOS(SVMExamples dataset, int[] solution, float[] weights, int strategy) {
+	public IREOS(SVMExamples dataset, float[] weights) {
 		this.dataset = dataset;
-		this.solution = solution;
 		this.weights = weights;
-		this.strategy = strategy;
 	}
 
 	public IREOS(SVMExamples dataset) {
 		this.dataset = dataset;
 	}
 
-	public List<IREOSSolution> evaluateSolutions() throws InterruptedException {
+	public List<IREOSSolution> evaluateSolutions() throws InterruptedException, NumberFormatException, IOException {
 		List<IREOSSolution> evaluatedSolutions = new ArrayList<IREOSSolution>();
 		/* Getting outlier indexes */
 		List<Integer> outliers = new ArrayList<Integer>();
-		for (int i = 0; i < solution.length; i++) {
-			if (solution[i] > 0)
-				outliers.add(i);
-		}
+		for (int i = 0; i < weights.length; i++)
+			outliers.add(i);
+
 		/* Setting cost weights to outliers */
 		SVMExamples data = new SVMExamples(dataset);
 
 		/* Evaluate solution & add to the list */
-		IREOSSolution evaluatedSolution = new IREOSSolution(evaluateSolution(data, outliers, weights), n, weights,
-				strategy);
+		IREOSSolution evaluatedSolution = new IREOSSolution(evaluateSolution(data, outliers, weights), n, weights);
 		evaluatedSolutions.add(evaluatedSolution);
 
 		return evaluatedSolutions;
@@ -74,11 +76,37 @@ public class IREOS {
 	 * @param outliers
 	 *            List of outliers indexes in the dataset
 	 * @throws InterruptedException
+	 * @throws IOException
+	 * @throws NumberFormatException
 	 */
 	public IREOSExample[] evaluateSolution(SVMExamples data, List<Integer> outliers, float[] weights)
-			throws InterruptedException {
+			throws InterruptedException, NumberFormatException, IOException {
 		/* Evaluating separability of each outlier */
-		IREOSExample[] evaluatedExamples = new IREOSExample[outliers.size()];
+		evaluatedExamples = new IREOSExample[outliers.size()];
+		for (int i = 0; i < outliers.size(); i++) {
+			evaluatedExamples[i] = new IREOSExample(outliers.get(i), gammas);
+		}
+		File f = new File(MainExample2.DB);
+		if (f.exists() && !f.isDirectory()) {
+			BufferedReader reader = new BufferedReader(new FileReader(f));
+			String line = "";
+			while ((line = reader.readLine()) != null) {
+				String[] splits = line.split(" ");
+				try {
+					if (Integer.parseInt(splits[0]) == getmCl()) {
+						int index;
+						if ((index = outliers.indexOf(Integer.parseInt(splits[1]))) != -1) {
+							evaluatedExamples[index].setSeparability(Double.parseDouble(splits[3]),
+									Arrays.binarySearch(gammas, Double.parseDouble(splits[2])));
+
+						}
+					}
+				} catch (Exception e) {
+					// TODO: handle exception
+				}
+			}
+		}
+
 		double beta = (double) 1 / getmCl();
 		double cs[] = data.get_cs();
 		for (int j = 0; j < cs.length; j++) {
@@ -87,19 +115,16 @@ public class IREOS {
 		data.set_cs(cs);
 
 		MaximumMarginClassifierThread threads[] = new MaximumMarginClassifierThread[number_of_threads];
-		for (int i = 0; i < number_of_threads; i++) {
-			threads[i] = new MaximumMarginClassifierThread(null, gammas, -1);
-		}
+		for (int i = 0; i < number_of_threads; i++)
+			threads[i] = new MaximumMarginClassifierThread(null, gammas, -1, -1, -1);
+
 		int i = 0;
 		for (; i < outliers.size();) {
 			for (int t = 0; t < number_of_threads; t++) {
 				if (!threads[t].isAlive()) {
-					if (threads[t].getOutlierIndex() != -1)
-						evaluatedExamples[threads[t].getOutlierIndex()].setSeparability(threads[t].getSeparability());
-					System.out.println(i);
 					int outlier = outliers.get(i);
-					evaluatedExamples[i] = new IREOSExample(outlier, gammas);
-					threads[t] = new MaximumMarginClassifierThread(data, gammas, outlier);
+					System.out.println(i);
+					threads[t] = new MaximumMarginClassifierThread(data, gammas, outlier, i, getmCl());
 					threads[t].start();
 					i++;
 					if (i >= outliers.size())
@@ -108,11 +133,8 @@ public class IREOS {
 			}
 		}
 
-		for (MaximumMarginClassifierThread maximumMarginClassifierThread : threads) {
+		for (MaximumMarginClassifierThread maximumMarginClassifierThread : threads)
 			maximumMarginClassifierThread.join();
-			evaluatedExamples[maximumMarginClassifierThread.getOutlierIndex()]
-					.setSeparability(maximumMarginClassifierThread.getSeparability());
-		}
 
 		return evaluatedExamples;
 	}
@@ -144,6 +166,8 @@ public class IREOS {
 	}
 
 	/**
+<<<<<<< HEAD
+=======
 	 * Look for the maximum gamma by increasing gradually gamma until all the
 	 * outliers are separable using the default increasing
 	 */
@@ -176,10 +200,7 @@ public class IREOS {
 			while (!outliers.isEmpty()) {
 				int listOutlierIndex = 0;
 				for (int i = 0; (i < number_of_threads) && (i < outliers.size()); i++) {
-
 					if (!threads[i].isAlive()) {
-						System.out.println(outliers.size());
-						System.out.println(gammaMax+"/"+threads[i].getP());
 						if (threads[i].getP() > 0.5) {
 							outliers.remove(new Integer(threads[i].getOutlierIndex()));
 							if (outliers.isEmpty())
@@ -210,6 +231,7 @@ public class IREOS {
 	}
 
 	/**
+>>>>>>> parent of bf87337... merry xmas
 	 * Get the maximum clump size
 	 * 
 	 */

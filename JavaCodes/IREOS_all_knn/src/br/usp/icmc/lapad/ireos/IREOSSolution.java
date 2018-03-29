@@ -10,8 +10,8 @@ public class IREOSSolution {
 	private double gammaMax;
 	/*
 	 * The average of all observation separalities used to compute the expected
-	 * value, each vector element represent the average of all the
-	 * separabilities for the correspondent gamma
+	 * value, each vector element represent the average of all the separabilities
+	 * for the correspondent gamma
 	 */
 	private double averageSeparability[];
 	/* IREOS index */
@@ -27,7 +27,6 @@ public class IREOSSolution {
 	private float weights[];
 
 	private int n = -1;
-	private int strategy;
 
 	/**
 	 * Constructor class
@@ -35,12 +34,11 @@ public class IREOSSolution {
 	 * @param examples
 	 *            Observations labeled as outliers in this solution
 	 */
-	public IREOSSolution(IREOSExample[] examples, int n, float[] weights, int strategy) {
+	public IREOSSolution(IREOSExample[] examples, int n, float[] weights) {
 		this.n = n;
 		this.weights = weights;
 		this.examples = examples;
 		this.gammaMax = examples[0].getGammas()[(examples[0].getGammas().length - 1)];
-		this.strategy = strategy;
 		if (examples.length > 1)
 			t = new TDistribution(examples.length - 1);
 		else
@@ -67,7 +65,6 @@ public class IREOSSolution {
 		}
 		return averageSeparability;
 	}
-	
 
 	public float[] getWeights() {
 		return weights;
@@ -76,8 +73,6 @@ public class IREOSSolution {
 	public void setWeights(float[] weights) {
 		this.weights = weights;
 	}
-
-
 
 	/**
 	 * Compute and get IREOS index for this solution
@@ -94,21 +89,10 @@ public class IREOSSolution {
 	 * 
 	 */
 	public double getAUC() {
-		if (auc == -1){
-			switch (strategy) {
-			case 0:
-				auc = computeAUC(examples[0].getGammas(), getAverageSeparability());
-				break;
-			case 1:
-				auc = computeTransformedAUC(examples[0].getGammas(), getAverageSeparability());
-				break;
-
-			default:
-				System.err.println("Invalid Strategy.");
-			}
-			
+		if (auc == -1) {
+			auc = computeAUC(examples[0].getGammas(), getAverageSeparability());
 		}
-			return auc;
+		return auc;
 	}
 
 	/**
@@ -126,10 +110,10 @@ public class IREOSSolution {
 			value += (x[i] - x[(i - 1)]) * (y[i - 1] + y[i]);
 		value *= 0.5;
 		value /= gammaMax;
-		
+
 		return value;
 	}
-	
+
 	/**
 	 * 
 	 * Compute AUC using the transformation of discretization
@@ -138,7 +122,7 @@ public class IREOSSolution {
 	public double computeTransformedAUC(double[] x, double[] y) {
 		double value = 0;
 		for (int i = 0; i < y.length; i++)
-			value +=  y[i];
+			value += y[i];
 		value /= y.length;
 		return value;
 	}

@@ -454,7 +454,7 @@ public class KLR {
 
 		return true;
 	}; // end takeStep procedure
-
+	
 	public void klr() {
 		// main routine:
 
@@ -481,6 +481,7 @@ public class KLR {
 
 		double alpha_pos = c_pos / n1; // !!! N1 = # pos examples
 		double alpha_neg = c_neg / n2; // !!! N2 = # neg examples
+	
 		for (i = 0; i < n; i++) {
 			if (target[i] > 0) {
 				alphas[i] = alpha_pos;
@@ -491,30 +492,29 @@ public class KLR {
 			atBound[i] = false;
 		}
 		;
-
 		// initialize all Hcache[i]
-		double sum_pos_K;
-		double sum_neg_K;
-		double[] kernel_row;
+		
 		bUp = Double.NEGATIVE_INFINITY;
 		bLow = Double.POSITIVE_INFINITY;
 		iUp = 0;
 		iLow = 0;
+		double f;
+		double[] kernel_row;
 		for (i = 0; i < n; i++) {
-			sum_pos_K = 0.0;
-			sum_neg_K = 0.0;
+			f = 0;
 			kernel_row = kernel.get_row(i);
 			for (j = 0; j < n; j++) {
 				if (target[j] > 0) {
-					sum_pos_K += kernel_row[j];
+					f += kernel_row[j]*alphas[j];
 				} else {
-					sum_neg_K += kernel_row[j];
+					f -= kernel_row[j]*alphas[j];
 				}
 				;
 			}
 			;
-			hCache[i] = alpha_pos * sum_pos_K - alpha_neg * sum_neg_K
-					+ (target[i]) * dG(alphas[i], Cs[i]);
+			hCache[i] = f + (target[i]) * dG(alphas[i], Cs[i]);
+		//	System.out.println(dG(alphas[i], Cs[i]));
+
 			if (hCache[i] > bUp) {
 				bUp = hCache[i];
 				iUp = i;
@@ -582,9 +582,10 @@ public class KLR {
 		} while ((numChange != 0) && (it > 0));
 
 		b = (bLow + bUp) / 2.0;
+		
 
 	};
-
+	
 	public double predict(SVMExample sVMExample) {
 		int i;
 		SVMExample sv;
@@ -635,7 +636,7 @@ public class KLR {
 		}
 		;
 	};
-
+	
 	/** Return the weights of the features. */
 	public double[] getWeights() {
 		int dim = examples.get_dim();
@@ -656,6 +657,10 @@ public class KLR {
 	/** Returns the value of b. */
 	public double getB() {
 		return examples.get_b();
+	}
+	
+	public double[] getAlphas() {
+		return alphas;
 	}
 
 };

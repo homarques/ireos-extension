@@ -9,6 +9,7 @@ public class IREOSExample {
 	private double separability[];
 	/* Set of gammas used to evaluated the observation separability */
 	private double gammas[];
+	private boolean eval[];
 
 	/**
 	 * Constructor class
@@ -22,6 +23,10 @@ public class IREOSExample {
 		this.index = index;
 		this.setGammas(gammas);
 		this.separability = new double[gammas.length];
+		eval = new boolean[gammas.length];
+		for (int i = 0; i < gammas.length; i++) {
+			eval[0] = false;
+		}
 	}
 
 	/**
@@ -58,11 +63,16 @@ public class IREOSExample {
 	 */
 	public void setSeparability(double separability, int index) {
 		this.separability[index] = separability;
+		eval[index] = true;
 	}
-	
+
 	public void setSeparability(double[] separability) {
 		this.separability = separability;
+		for (int i = 0; i < gammas.length; i++) {
+			eval[0] = true;
+		}
 	}
+
 	/**
 	 * Get the set of gammas used to evaluated the observation separability
 	 *
@@ -77,6 +87,10 @@ public class IREOSExample {
 	 */
 	public void setGammas(double gammas[]) {
 		this.gammas = gammas;
+	}
+
+	public boolean isEval(int index) {
+		return eval[index];
 	}
 
 }
