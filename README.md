@@ -6,5 +6,8 @@ Original paper:
 
 ```H. O. Marques, R. J. G. B. Campello, J. Sander, and A. Zimek.``` </br>
 ```Internal Evaluation of Unsupervised Outlier Detection. ACM Trans. Knowl. Discov. Data, Vol. 14, No. 4, Article 47, 2020.``` </br>
-DOI: https://doi.org/10.1145/3394053
+https://doi.org/10.1145/3394053
 
+## Loading dataset
+
+```SVMExamples dataset = new SVMExamples(new BufferedReader(new FileReader()), size, 100);```
