@@ -52,7 +52,7 @@ public class Main {
 		}
 
 		/* Create dataset model */
-		SVMExamples dataset = new SVMExamples(new BufferedReader(new FileReader(DATA)), size, 100);
+		SVMExamples dataset = new SVMExamples(new BufferedReader(new FileReader(DATA)), size, 100, " ");
 
 		/* Initializing the dataset for ELKI */
 		DatabaseConnection dbc = new ArrayAdapterDatabaseConnection(dataset.atts);
