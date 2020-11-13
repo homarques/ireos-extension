@@ -158,7 +158,7 @@ public class SVMExamples implements Serializable {
 	 * 
 	 * @throws IOException
 	 */
-	public SVMExamples(BufferedReader reader, int size, double cs[])
+	public SVMExamples(BufferedReader reader, int size, double cs[], String sep)
 			throws IOException {
 		this(size, 0.0d);
 
@@ -167,7 +167,7 @@ public class SVMExamples implements Serializable {
 		while ((current = reader.readLine()) != null) {
 			Map<Integer, Double> attributeMap = new LinkedHashMap<Integer, Double>();
 			int a = 0;
-			for (String attribute : current.split(" ")) {
+			for (String attribute : current.split(sep)) {
 				double value = Double.parseDouble(attribute);
 				attributeMap.put(a, value);
 				if ((a + 1) > dim)

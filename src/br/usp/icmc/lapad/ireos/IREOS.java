@@ -209,6 +209,14 @@ public class IREOS {
 
 		return evaluatedExamples;
 	}
+	
+	public double getTol() {
+		return tol;
+	}
+
+	public void setTol(double tol) {
+		this.tol = tol;
+	}
 
 	/**
 	 * Get the maximum clump size

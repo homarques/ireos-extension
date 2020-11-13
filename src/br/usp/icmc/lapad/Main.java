@@ -78,9 +78,9 @@ public class Main {
 			scorings.add(scoring);
 		}
 
-		int k = 200;
+		int k = 100;
 		int[][] knn = new int[dataset.getTrain_size()][k];
-		Relation relation = db.getRelation(TypeUtil.array(TypeUtil.NUMBER_VECTOR_FIELD)[0]);
+		Relation<NumberVector> relation = db.getRelation(TypeUtil.NUMBER_VECTOR_FIELD);
 		KNNQuery<NumberVector> knnq = precomputedKNNQuery(db, relation, new EuclideanDistanceFunction(), k + 1);
 
 		int i = 0;
@@ -107,26 +107,12 @@ public class Main {
 		 */
 		double gammaMax = Utils.findGammaMax(dataset, scorings);
 
-		/*
-		 * Alternatively, Gamma Max can be found as the 90th percentile of the pairwise
-		 * distances
-		 */
-		// ListParameterization params = new ListParameterization();
-		// params.addParameter(DistanceQuantileSampler.Parameterizer.QUANTILE_ID, 0.9);
-		// if (size <= 1000)
-		// params.addParameter(DistanceQuantileSampler.Parameterizer.SAMPLING_ID, size);
-		// else
-		// params.addParameter(DistanceQuantileSampler.Parameterizer.SAMPLING_ID, 1000);
-
-		// DistanceQuantileSampler<?> distanceQuantile =
-		// ClassGenericsUtil.parameterizeOrAbort(DistanceQuantileSampler.class, params);
-		// CollectionResult<double[]> result = distanceQuantile.run(db);
-		// gammaMax = ((Iterator<double[]>) result.iterator()).next()[0];
-
 		ireos.setGammaMax(gammaMax);
 
 		/* Set the maximum clump size */
 		ireos.setmCl(1);
+
+		ireos.setTol(0.005);
 
 		/* Evaluate the solutions */
 		List<IREOSSolution> evaluatedSolutions = ireos.evaluateSolutions();
