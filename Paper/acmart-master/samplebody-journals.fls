@@ -1,7 +1,0 @@
-PWD /home/henrique/Documents/journal/acmart-master
-INPUT /usr/share/texmf-dist/web2c/texmf.cnf
-INPUT /var/lib/texmf/web2c/pdftex/pdflatex.fmt
-INPUT samplebody-journals.tex
-OUTPUT samplebody-journals.log
-INPUT samplebody-journals.bbl
-INPUT samplebody-journals.bbl
