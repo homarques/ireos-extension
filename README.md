@@ -14,5 +14,9 @@ Also it is included an evaluation example performed in the file src/usp/icmc/lap
 
 ## Loading dataset
 
-```SVMExamples dataset = new SVMExamples(new BufferedReader(new FileReader("/path/to/csv")), sizeOfDataset, C, separator);```
+The dataset used in the evaluation must be loaded as ```SVMExamples``` object. An object of this type can be instantiated using the constructor below:</br>
+```SVMExamples dataset = new SVMExamples(new BufferedReader(new FileReader("/path/to/csv")), sizeOfDataset, C, separator);```<br>
+where the first parameter is the path to the CSV file, the second is the size of the dataset (number of line of the CSV file), the third is the value of the constant penalty cost for soft margin violations, and the fourth is the field separator character of the CSV file.<br>
+As discussed in our previous paper [[1]](#references), the value of C just need to be large enough, for our experiments we used C = 100.
 
+## <a name="references">References</a>
