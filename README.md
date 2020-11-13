@@ -12,7 +12,7 @@ Internal Evaluation of Unsupervised Outlier Detection. ACM Trans. Knowl. Discov.
 
 https://doi.org/10.1145/3394053
 
-Included in this distribution is an example data set (WBC_withoutdupl_norm) which consists of 223 objects, each with 9 attributes, this data set is a modified version of the publicly available real world datasets from the UCI repository.
+Included in this distribution is an example data set (WBC_withoutdupl_norm) which consists of 223 objects, each with 9 attributes, this data set is a modified version of the publicly available real world datasets from the UCI repository.<br>
 Also it is included an evaluation example performed in the file src/usp/icmc/lapad/Main.java. 
 
 ## <a name="references">Loading dataset</a>
