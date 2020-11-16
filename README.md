@@ -66,7 +66,7 @@ After loading the dataset and generating the outlier detection solutions, we can
 IREOS ireos = new IREOS(dataset, scorings);
 ```
 
-## Setting Gamma max (gamma_max)
+## Setting gamma max (gamma_max)
 In a traditional classification problem the parameter gamma controls the compromise between the performance of the classifier on the training data versus on test data (overfitting vs. underfitting, bias-variance trade-off). For unsupervised outlier evaluation, however, we are not interested at all in the classifier itself or its performance on new, unseen data. We use a classifier merely to measure the degree of difficulty when trying to discriminate between one individual candidate outlier and the other data objects.
 
 We make use of the fact that separability of outliers is expected to be larger than the separability of inliers irrespective of gamma, whereby we avoid a particular choice of gamma by taking the integral over a range of meaningful values, from zero up to gamma_max. In this range, the value of gamma just needs to become big enough to discriminate each individual candidate outlier from the other data objects, so we use a single gamma_max for which this will be true for all the candidate outliers. Note that gamma_max could be further increased, the exact value is not important, but the higher the value after this point (where the candidate outliers become separable), the greater the loss of contrast in the area under the curve (because the curve will already have flattened), and there is also an extra and unnecessary computational effort involved. However, the index should not be severely affected by different values of gamma_max. For relative comparison, higher values for gamma_max lead to smaller contrast between good and bad solutions. For absolute (statistical) comparison, the expected value removed from the index (adjustment for chance) fixes the contrast between the solutions.
@@ -87,7 +87,7 @@ double gammaMax = Utils.findGammaMaxbyDistances(db, sampling, quantile);
 ireos.setGammaMax(gammaMax);
 ```
   
-## Setting Maximum clump size (mCl)
+## Setting maximum clump size (mCl)
 Clumps, or particles, are subsets of objects lying in the same region of the data space, relatively closer to each other than they are from other objects, but too small to be deemed a cluster. Unfortunately, what is a clump can depend on both the application domain and a user's expectation on what they judge to be a set of similar objects that is "too small" to be interpreted as a cluster. Therefore, we provide the users with an optional control mechanism to adjust their expectations about what a maximum clump size (mCl) should be.
 
 The use of mCl is optional (and as such, it does not need to be chosen, it can be chosen at the user's discretion), the choices in which mCl > 1 (which correspond to modelling clumps explicitly) exhibited, on average, the best results in our experiments. In the absence of further domain information, we recommend our rule-of-thumb heuristic mCl = √(5%sizeOfDataset), as this setup presented, on average, the best results in our experiments.
@@ -95,7 +95,7 @@ The use of mCl is optional (and as such, it does not need to be chosen, it can b
 ireos.setmCl(mCl);
 ```
 
-## Tolerance
+## Setting tolerance error
 By using the adaptive quadrature to compute separability curves the user has to specify an arbitrary tolerance error. This error represents a clear trade-off between the index error and computational cost.
  ```java
 ireos.setTol(0.005);
