@@ -233,7 +233,7 @@ public class IREOS {
 	 * @throws Exception Maximum clump size must be higher than 0
 	 */
 	public void setmCl(int mCl) throws Exception {
-		if (mCl <= 0)
+		if (mCl < 1)
 			throw new Exception("The maximum clump size (mCl) must be higher than 0");
 		else
 			this.mCl = mCl;

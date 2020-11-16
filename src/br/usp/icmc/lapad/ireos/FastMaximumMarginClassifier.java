@@ -26,11 +26,12 @@ public class FastMaximumMarginClassifier extends Thread {
 	private int internalOutlierIndex;
 
 	/**
-	 * Constructor class
+	 * Exact IREOS
 	 * 
 	 * @param model        The KLR model used to evaluate the separability
-	 * @param gamma        The gamma used by KLR to evaluate the separability
+	 * @param gammaMax        The gamma_max used by KLR to evaluate the separability
 	 * @param outlierIndex The index of the observation that will be evaluated
+	 * @param tol tolerance error
 	 */
 	public FastMaximumMarginClassifier(SVMExamples model, double gammaMax, int outlierIndex, double tol) {
 		if (model != null)
@@ -49,11 +50,13 @@ public class FastMaximumMarginClassifier extends Thread {
 	}
 
 	/**
-	 * Constructor class
+	 * Approximate IREOS
 	 * 
 	 * @param model        The KLR model used to evaluate the separability
-	 * @param gamma        The gamma used by KLR to evaluate the separability
+	 * @param gammaMax        The gamma_max used by KLR to evaluate the separability
 	 * @param outlierIndex The index of the observation that will be evaluated
+	 * @param tol tolerance error
+	 * @param knn The k nearest neighbors of the object
 	 */
 	public FastMaximumMarginClassifier(SVMExamples model, double gammaMax, int outlierIndex, double tol, int[] knn) {
 		if (model != null) {

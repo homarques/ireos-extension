@@ -7,12 +7,13 @@ public class IREOSSolution {
 	private double gammaMax;
 	/* IREOS index */
 	private double indexIREOS = -1;
+	/* Normalized outlier scorings */
 	private double weights[];
 
 	/**
 	 * Constructor class
 	 * 
-	 * @param examples Observations labeled as outliers in this solution
+	 * @param examples
 	 */
 	public IREOSSolution(IREOSExample[] examples, double[] weights, double gammaMax) {
 		this.weights = weights;

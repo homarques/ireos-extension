@@ -1,7 +1,5 @@
 package br.usp.icmc.lapad;
 
-import static de.lmu.ifi.dbs.elki.database.DatabaseUtil.precomputedKNNQuery;
-
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.util.ArrayList;
@@ -14,18 +12,11 @@ import br.usp.icmc.lapad.ireos.IREOSSolution;
 import br.usp.icmc.lapad.ireos.Utils;
 import de.lmu.ifi.dbs.elki.algorithm.Algorithm;
 import de.lmu.ifi.dbs.elki.algorithm.outlier.lof.LOF;
-import de.lmu.ifi.dbs.elki.data.NumberVector;
-import de.lmu.ifi.dbs.elki.data.type.TypeUtil;
 import de.lmu.ifi.dbs.elki.database.Database;
 import de.lmu.ifi.dbs.elki.database.StaticArrayDatabase;
 import de.lmu.ifi.dbs.elki.database.ids.DBIDIter;
-import de.lmu.ifi.dbs.elki.database.ids.DoubleDBIDListIter;
-import de.lmu.ifi.dbs.elki.database.ids.KNNList;
-import de.lmu.ifi.dbs.elki.database.query.knn.KNNQuery;
-import de.lmu.ifi.dbs.elki.database.relation.Relation;
 import de.lmu.ifi.dbs.elki.datasource.ArrayAdapterDatabaseConnection;
 import de.lmu.ifi.dbs.elki.datasource.DatabaseConnection;
-import de.lmu.ifi.dbs.elki.distance.distancefunction.minkowski.EuclideanDistanceFunction;
 import de.lmu.ifi.dbs.elki.result.outlier.OutlierResult;
 import de.lmu.ifi.dbs.elki.utilities.ClassGenericsUtil;
 import de.lmu.ifi.dbs.elki.utilities.optionhandling.parameterization.ListParameterization;
@@ -78,25 +69,15 @@ public class Main {
 			scorings.add(scoring);
 		}
 
-		int k = 100;
-		int[][] knn = new int[dataset.getTrain_size()][k];
-		Relation<NumberVector> relation = db.getRelation(TypeUtil.NUMBER_VECTOR_FIELD);
-		KNNQuery<NumberVector> knnq = precomputedKNNQuery(db, relation, new EuclideanDistanceFunction(), k + 1);
-
-		int i = 0;
-		for (DBIDIter iter = relation.iterDBIDs(); iter.valid(); iter.advance()) {
-			int j = 0;
-			KNNList neighbors = knnq.getKNNForDBID(iter, k + 1);
-			for (DoubleDBIDListIter neighbor = neighbors.iter(); neighbor.valid(); neighbor.advance()) {
-				if (i == neighbor.internalGetIndex() - 1)
-					continue;
-				knn[i][j] = neighbor.internalGetIndex() - 1;
-				j++;
-				if (j >= k)
-					break;
-			}
-			i++;
+		// Adding the ground truth as a solution to be evaluated by IREOS
+		double label_to_evaluate[] = new double[size];
+		for (int i = 0; i < size; i++) {
+			if (i < 10)
+				label_to_evaluate[i] = 1;
+			else
+				label_to_evaluate[i] = 0;
 		}
+		scorings.add(label_to_evaluate);
 
 		IREOS ireos = new IREOS(dataset, scorings);
 
@@ -105,7 +86,9 @@ public class Main {
 		 * separate from the other objects every object labeled as outlier in all
 		 * solutions, i.e., objects with outlier probability > 50%
 		 */
-		double gammaMax = Utils.findGammaMax(dataset, scorings);
+		// double gammaMax = Utils.findGammaMax(dataset, scorings);
+
+		double gammaMax = Utils.findGammaMaxbyDistances(db, 100, 1);
 
 		ireos.setGammaMax(gammaMax);
 
@@ -116,10 +99,13 @@ public class Main {
 
 		/* Evaluate the solutions */
 		List<IREOSSolution> evaluatedSolutions = ireos.evaluateSolutions();
+
+		int k = 100;
+		int[][] knn = Utils.knn(db, k);
 		List<IREOSSolution> evaluatedSolutionsApprox = ireos.evaluateSolutions(knn);
 
 		/* Print the results */
-		for (i = 0; i < evaluatedSolutions.size(); i++) {
+		for (int i = 0; i < evaluatedSolutions.size(); i++) {
 			System.out.println("------------------------------------");
 			System.out.println("Solution: " + i);
 			System.out.println("IREOS: " + evaluatedSolutions.get(i).getIREOS());
