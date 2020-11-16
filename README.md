@@ -98,7 +98,7 @@ ireos.setmCl(mCl);
 ```
 
 ## Setting tolerance error
-By using the adaptive quadrature to compute separability curves, the user has to specify an arbitrary tolerance error. This error represents a clear trade-off between the error tolerance for computing the index and the computational cost.
+By using the adaptive quadrature [[6]](#references) to compute separability curves, the user has to specify an arbitrary tolerance error. This error represents a clear trade-off between the error tolerance for computing the index and the computational cost.
  ```java
 ireos.setTol(tol);
 ```
@@ -123,3 +123,4 @@ List<IREOSSolution> evaluatedSolutionsApprox = ireos.evaluateSolutions(knn);
 [3] [M. M. Breunig, H.-P. Kriegel, R. T. Ng and J. Sander. LOF: Identifying Density-based Local Outliers. In Proceedings of the 2000 ACM SIGMOD International Conference on Management of Data (SIGMOD), 2000.](https://doi.org/10.1145/335191.335388)<br>
 [4] [H.-P. Kriegel, P. Kröger, E. Schubert and A. Zimek. Interpreting and unifying outlier scores. In Proceedings of the 11th SIAM International Conference on Data Mining (SDM), 2011.](https://www.dbs.ifi.lmu.de/~zimek/publications/SDM2011/SDM11-outlier-preprint.pdf)<br>
 [5] [F. T. Liu, K. M. Ting and Z.-H. Zhou. Isolation-Based Anomaly Detection. Transactions on Knowledge Discovery from Data, 2012](https://doi.org/10.1145/2133360.2133363)<br>
+[6] [R. L. Burden, J. D. Faires and A. M. Burden. Adaptive Quadrature Methods, chapter 4, Numerical Analysis, 2016](https://www.amazon.com/Numerical-Analysis-Richard-L-Burden/dp/1305253663)<br>
