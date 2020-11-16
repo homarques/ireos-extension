@@ -91,7 +91,8 @@ ireos.setGammaMax(gammaMax);
 ## Setting maximum clump size (mCl)
 Clumps, or particles, are subsets of objects lying in the same region of the data space, relatively closer to each other than they are from other objects, but too small to be deemed a cluster. Unfortunately, what is a clump can depend on both the application domain and a user's expectation on what they judge to be a set of similar objects that is "too small" to be interpreted as a cluster. Therefore, we provide the users with an optional control mechanism to adjust their expectations about what a maximum clump size (mCl) should be.
 
-The use of mCl is optional (and as such, it does not need to be chosen, it can be chosen at the user's discretion), the choices in which mCl > 1 (which correspond to modelling clumps explicitly) exhibited, on average, the best results in our experiments. In the absence of further domain information, we recommend our rule-of-thumb heuristic mCl = √(5%sizeOfDataset), as this setup presented, on average, the best results in our experiments.
+The use of mCl is optional (and as such, it does not need to be chosen, it can be chosen at the user's discretion). <br>
+The choices in which mCl > 1 (which correspond to modelling clumps explicitly) exhibited, on average, the best results in our experiments. In the absence of further domain information, we recommend our rule-of-thumb heuristic mCl = √(5%sizeOfDataset), as this setup presented, on average, the best results in our experiments.
  ```java
 ireos.setmCl(mCl);
 ```
