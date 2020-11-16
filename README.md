@@ -77,7 +77,8 @@ In our experiments, we use gamma_max as the value required by the classifier to 
 double gammaMax = Utils.findGammaMax(dataset, scorings);
 ireos.setGammaMax(gammaMax);
 ```
-The above approach can lead to excessively high values in case a very dense object is considered outlier by some candidate solution. Or, excessively low values in cases where only objects with more or less the same degree of outlierness are considered outliers by the candidate solutions. Again, higher values for gamma_max lead to smaller contrast between good and bad solutions, while lower values for gamma_max lead to smaller IREOS values, even for good solutions. We do not expect inversions between good and bad solutions.
+The above approach can lead to excessively high values in case a very dense object is considered outlier by some candidate solution. Or, excessively low values in cases where only objects with more or less the same degree of outlierness are considered outliers by the candidate solutions. <br>
+Again, higher values for gamma_max lead to smaller contrast between good and bad solutions, while lower values for gamma_max lead to smaller IREOS values, even for good solutions. We do not, however, expect inversions between good and bad solutions.
 
 To avoid the solution-based approach to choosing gamma, a dataset-based approach can be used. For example, the gamma value can be chosen based on pairwise distance, as it is commonly used in literature to select useful gamma values, as in [[5]](#references).<br>
 The above function uses [```DistanceQuantileSampler```](http://elki.dbs.ifi.lmu.de/releases/release0.7.5/doc/de/lmu/ifi/dbs/elki/algorithm/statistics/DistanceQuantileSampler.html) ELKI function to compute a quantile of a distance sample to be used as gamma_max.
