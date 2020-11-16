@@ -98,9 +98,9 @@ ireos.setmCl(mCl);
 ```
 
 ## Setting tolerance error
-By using the adaptive quadrature to compute separability curves the user has to specify an arbitrary tolerance error. This error represents a clear trade-off between the index error and computational cost.
+By using the adaptive quadrature to compute separability curves, the user has to specify an arbitrary tolerance error. This error represents a clear trade-off between the error tolerance for computing the index and the computational cost.
  ```java
-ireos.setTol(0.005);
+ireos.setTol(tol);
 ```
 
 ## Evaluating solutions
