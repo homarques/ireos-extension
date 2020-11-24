@@ -75,7 +75,8 @@ public class IREOS {
 			data.set_cs(cs);
 
 			/* Evaluate solution & add to the list */
-			IREOSSolution evaluatedSolution = new IREOSSolution(evaluateSolution(data, solution, knn), solution, gammaMax);
+			IREOSSolution evaluatedSolution = new IREOSSolution(evaluateSolution(data, solution, knn), solution,
+					gammaMax);
 			evaluatedSolutions.add(evaluatedSolution);
 		}
 
@@ -124,8 +125,10 @@ public class IREOS {
 			for (FastMaximumMarginClassifier t : threads) {
 				try {
 					t.join();
-					evaluatedExamples[t.getOutlierIndex()].setAuc(t.getAuc());
-					evaluatedExamples[t.getOutlierIndex()].setSeparabilities(t.getSeparabilities());
+					if (t.getOutlierIndex() != -1) {
+						evaluatedExamples[t.getOutlierIndex()].setAuc(t.getAuc());
+						evaluatedExamples[t.getOutlierIndex()].setSeparabilities(t.getSeparabilities());
+					}
 				} catch (InterruptedException e) {
 					System.out.println("Error while waiting for threads that were evaluating the solutions: " + e);
 				}
@@ -136,8 +139,10 @@ public class IREOS {
 		for (FastMaximumMarginClassifier t : threads) {
 			try {
 				t.join();
-				evaluatedExamples[t.getOutlierIndex()].setAuc(t.getAuc());
-				evaluatedExamples[t.getOutlierIndex()].setSeparabilities(t.getSeparabilities());
+				if (t.getOutlierIndex() != -1) {
+					evaluatedExamples[t.getOutlierIndex()].setAuc(t.getAuc());
+					evaluatedExamples[t.getOutlierIndex()].setSeparabilities(t.getSeparabilities());
+				}
 			} catch (InterruptedException e) {
 				System.out.println("Error while waiting for threads that were evaluating the solutions: " + e);
 			}
@@ -188,8 +193,10 @@ public class IREOS {
 			for (FastMaximumMarginClassifier t : threads) {
 				try {
 					t.join();
-					evaluatedExamples[t.getOutlierIndex()].setAuc(t.getAuc());
-					evaluatedExamples[t.getOutlierIndex()].setSeparabilities(t.getSeparabilities());
+					if (t.getOutlierIndex() != -1) {
+						evaluatedExamples[t.getOutlierIndex()].setAuc(t.getAuc());
+						evaluatedExamples[t.getOutlierIndex()].setSeparabilities(t.getSeparabilities());
+					}
 				} catch (InterruptedException e) {
 					System.out.println("Error while waiting for threads that were evaluating the solutions: " + e);
 				}
@@ -200,8 +207,10 @@ public class IREOS {
 		for (FastMaximumMarginClassifier t : threads) {
 			try {
 				t.join();
-				evaluatedExamples[t.getOutlierIndex()].setAuc(t.getAuc());
-				evaluatedExamples[t.getOutlierIndex()].setSeparabilities(t.getSeparabilities());
+				if (t.getOutlierIndex() != -1) {
+					evaluatedExamples[t.getOutlierIndex()].setAuc(t.getAuc());
+					evaluatedExamples[t.getOutlierIndex()].setSeparabilities(t.getSeparabilities());
+				}
 			} catch (InterruptedException e) {
 				System.out.println("Error while waiting for threads that were evaluating the solutions: " + e);
 			}
@@ -209,7 +218,7 @@ public class IREOS {
 
 		return evaluatedExamples;
 	}
-	
+
 	public double getTol() {
 		return tol;
 	}
