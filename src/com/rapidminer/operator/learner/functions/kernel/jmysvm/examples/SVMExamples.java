@@ -242,6 +242,32 @@ public class SVMExamples implements Serializable {
 		}
 	}
 
+	/**
+	 * Creates a fresh example set of the given size from the RapidMiner example
+	 * The alpha values and b are zero, the label will be set if it is
+	 * known. Also, all the examples have the same cost
+	 * 
+	 * @throws IOException
+	 */
+
+	public SVMExamples(double[][] data, int size, int dim, double c)
+			throws IOException {
+		this(size, 0.0d);
+		this.dim = dim;
+		this.atts = data;
+
+		for (int exampleCounter = 0; exampleCounter < size; exampleCounter++) {
+			index[exampleCounter] = new int[dim];
+			for (int a = 0; a < dim; a++) {
+				index[exampleCounter][a] = a;
+			}
+			
+			ys[exampleCounter] = -1;
+			cs[exampleCounter] = c;
+			ids[exampleCounter] = exampleCounter + "";
+
+		}
+	}
 	/** Reads an example set from the given input stream. */
 	public SVMExamples(ObjectInputStream in) throws IOException {
 		this(in.readInt(), in.readDouble());

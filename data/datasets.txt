@@ -1,0 +1,28 @@
+#Datasets variants selected based on Difficulty vs. diversity indexes
+#On the Evaluation of Unsupervised Outlier Detection: Measures, Datasets, and an Empirical Study
+#G. O. Campos, A. Zimek, J. Sander, R. J. G. B. Campello, B. Micenková, E. Schubert, I. Assent and M. E. Houle
+#https://www.dbs.ifi.lmu.de/research/outlier-evaluation/DAMI/
+
+ALOI_withoutdupl_norm.arff
+KDDCup99_withoutdupl_norm_1ofn.arff
+InternetAds_withoutdupl_norm_05_v10.arff
+Waveform_withoutdupl_norm_v05.arff
+PageBlocks_withoutdupl_norm_05_v10.arff
+Annthyroid_withoutdupl_norm_05_v01.arff
+SpamBase_withoutdupl_norm_05_v06.arff
+Arrhythmia_withoutdupl_norm_05_v09.arff
+PenDigits_withoutdupl_norm_v09.arff
+Cardiotocography_withoutdupl_norm_05_v06.arff
+Wilt_withoutdupl_norm_05.arff
+WDBC_withoutdupl_norm_v08.arff
+Shuttle_withoutdupl_norm_v01.arff
+WPBC_withoutdupl_norm.arff
+Ionosphere_withoutdupl_norm.arff
+Pima_withoutdupl_norm_05_v03.arff
+Stamps_withoutdupl_norm_05_v05.arff
+Parkinson_withoutdupl_norm_05_v02.arff
+WBC_withoutdupl_norm_v10.arff
+HeartDisease_withoutdupl_norm_05_v07.arff
+Lymphography_withoutdupl_norm_idf.arff
+Glass_withoutdupl_norm.arff
+Hepatitis_withoutdupl_norm_05_v04.arff

@@ -22,7 +22,7 @@ import de.lmu.ifi.dbs.elki.utilities.ClassGenericsUtil;
 import de.lmu.ifi.dbs.elki.utilities.optionhandling.parameterization.ListParameterization;
 
 public class Main {
-	private static final String DATA = "WBC_withoutdupl_norm";
+	private static final String DATA = "Datatasets/Vowel";
 
 	public static void main(String[] args) throws Exception {
 		/* Getting the size of the dataset */
